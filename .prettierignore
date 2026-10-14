@@ -1,0 +1,9 @@
+node_modules
+android
+ios
+.expo
+dist
+package-lock.json
+src/uniwind-types.d.ts
+.agents
+.claude

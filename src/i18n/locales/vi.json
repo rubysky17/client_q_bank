@@ -1,0 +1,64 @@
+{
+  "common": {
+    "retry": "Thử lại",
+    "loading": "Đang tải…",
+    "empty": "Chưa có dữ liệu",
+    "goHome": "Về trang chủ"
+  },
+  "tabs": {
+    "home": "Trang chủ",
+    "settings": "Cài đặt"
+  },
+  "auth": {
+    "title": "Đăng nhập",
+    "subtitle": "Chào mừng bạn đến với Q Bank",
+    "username": "Tên đăng nhập",
+    "usernamePlaceholder": "Nhập tên đăng nhập",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu",
+    "submit": "Đăng nhập",
+    "demoHint": "Tài khoản demo: emilys / emilyspass",
+    "validation": {
+      "usernameRequired": "Vui lòng nhập tên đăng nhập",
+      "passwordMin": "Mật khẩu tối thiểu {{count}} ký tự"
+    }
+  },
+  "home": {
+    "greeting": "Xin chào, {{name}}",
+    "title": "Bài viết mới",
+    "views": "{{count}} lượt xem",
+    "likes": "{{count}} thích"
+  },
+  "post": {
+    "title": "Chi tiết bài viết"
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "appearance": "Giao diện",
+    "theme": {
+      "system": "Theo hệ thống",
+      "light": "Sáng",
+      "dark": "Tối"
+    },
+    "language": {
+      "label": "Ngôn ngữ",
+      "system": "Theo máy",
+      "vi": "Tiếng Việt",
+      "en": "English"
+    },
+    "account": "Tài khoản",
+    "signOut": "Đăng xuất",
+    "version": "Phiên bản {{version}}"
+  },
+  "errors": {
+    "network": "Không có kết nối mạng. Kiểm tra Internet rồi thử lại.",
+    "timeout": "Máy chủ phản hồi quá lâu. Vui lòng thử lại.",
+    "unauthorized": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+    "http": "Máy chủ báo lỗi ({{status}}).",
+    "validation": "Dữ liệu máy chủ trả về không đúng định dạng.",
+    "unknown": "Đã có lỗi xảy ra."
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang"
+  }
+}

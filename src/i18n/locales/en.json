@@ -1,0 +1,64 @@
+{
+  "common": {
+    "retry": "Try again",
+    "loading": "Loading…",
+    "empty": "Nothing here yet",
+    "goHome": "Go home"
+  },
+  "tabs": {
+    "home": "Home",
+    "settings": "Settings"
+  },
+  "auth": {
+    "title": "Sign in",
+    "subtitle": "Welcome to Q Bank",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "submit": "Sign in",
+    "demoHint": "Demo account: emilys / emilyspass",
+    "validation": {
+      "usernameRequired": "Please enter your username",
+      "passwordMin": "Password must be at least {{count}} characters"
+    }
+  },
+  "home": {
+    "greeting": "Hi, {{name}}",
+    "title": "Latest posts",
+    "views": "{{count}} views",
+    "likes": "{{count}} likes"
+  },
+  "post": {
+    "title": "Post details"
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "language": {
+      "label": "Language",
+      "system": "Device",
+      "vi": "Tiếng Việt",
+      "en": "English"
+    },
+    "account": "Account",
+    "signOut": "Sign out",
+    "version": "Version {{version}}"
+  },
+  "errors": {
+    "network": "No connection. Check your internet and try again.",
+    "timeout": "The server took too long to respond. Please try again.",
+    "unauthorized": "Your session has expired. Please sign in again.",
+    "http": "The server returned an error ({{status}}).",
+    "validation": "The server returned data in an unexpected format.",
+    "unknown": "Something went wrong."
+  },
+  "notFound": {
+    "title": "Page not found"
+  }
+}
