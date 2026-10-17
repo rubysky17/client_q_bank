@@ -10,23 +10,26 @@ export class ApiError extends Error {
   readonly status?: number;
   /** `message` field from the server's JSON body, when it sends one. */
   readonly serverMessage?: string;
+  /** Stable machine-readable `code` from the server's JSON body, e.g. `ATTEMPT_EXPIRED`. */
+  readonly serverCode?: string;
 
   constructor(
     code: ApiErrorCode,
-    options: { status?: number; serverMessage?: string; cause?: unknown } = {},
+    options: { status?: number; serverMessage?: string; serverCode?: string; cause?: unknown } = {},
   ) {
     super(options.serverMessage ?? code, { cause: options.cause });
     this.name = 'ApiError';
     this.code = code;
     this.status = options.status;
     this.serverMessage = options.serverMessage;
+    this.serverCode = options.serverCode;
   }
 }
 
-function readServerMessage(data: unknown): string | undefined {
-  if (typeof data === 'object' && data !== null && 'message' in data) {
-    const { message } = data;
-    if (typeof message === 'string' && message.length > 0) return message;
+function readServerField(data: unknown, field: 'message' | 'code'): string | undefined {
+  if (typeof data === 'object' && data !== null && field in data) {
+    const value = (data as Record<string, unknown>)[field];
+    if (typeof value === 'string' && value.length > 0) return value;
   }
   return undefined;
 }
@@ -37,7 +40,8 @@ export function toApiError(error: unknown): ApiError {
     const status = error.response.status;
     return new ApiError(status === 401 ? 'unauthorized' : 'http', {
       status,
-      serverMessage: readServerMessage(error.data),
+      serverMessage: readServerField(error.data, 'message'),
+      serverCode: readServerField(error.data, 'code'),
       cause: error,
     });
   }

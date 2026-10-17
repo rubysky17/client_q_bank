@@ -6,31 +6,138 @@
     "goHome": "Về trang chủ"
   },
   "tabs": {
-    "home": "Trang chủ",
+    "home": "Đề thi",
+    "history": "Lịch sử",
+    "reports": "Báo cáo",
     "settings": "Cài đặt"
   },
   "auth": {
     "title": "Đăng nhập",
     "subtitle": "Chào mừng bạn đến với Q Bank",
-    "username": "Tên đăng nhập",
-    "usernamePlaceholder": "Nhập tên đăng nhập",
+    "email": "Email",
+    "emailPlaceholder": "Nhập email",
     "password": "Mật khẩu",
     "passwordPlaceholder": "Nhập mật khẩu",
     "submit": "Đăng nhập",
-    "demoHint": "Tài khoản demo: emilys / emilyspass",
     "validation": {
-      "usernameRequired": "Vui lòng nhập tên đăng nhập",
-      "passwordMin": "Mật khẩu tối thiểu {{count}} ký tự"
+      "emailInvalid": "Email không hợp lệ",
+      "passwordRequired": "Vui lòng nhập mật khẩu"
     }
   },
   "home": {
     "greeting": "Xin chào, {{name}}",
-    "title": "Bài viết mới",
-    "views": "{{count}} lượt xem",
-    "likes": "{{count}} thích"
+    "title": "Đề thi",
+    "questions": "{{count}} câu",
+    "minutes": "{{count}} phút",
+    "untimed": "Không giới hạn",
+    "passMark": "Đạt {{percent}}%"
   },
-  "post": {
-    "title": "Chi tiết bài viết"
+  "exam": {
+    "title": "Chi tiết đề",
+    "by": "Soạn bởi {{name}}",
+    "questions": "Số câu",
+    "duration": "Thời gian",
+    "passMark": "Điểm đạt",
+    "noPassMark": "Không có",
+    "totalPoints": "Tổng điểm",
+    "structure": "Cấu trúc đề",
+    "sectionQuestions": "{{count}} câu",
+    "myAttempts": "Bạn đã làm {{count}} lần",
+    "start": "Bắt đầu làm bài",
+    "resume": "Tiếp tục bài đang làm"
+  },
+  "attempt": {
+    "title": "Làm bài",
+    "questionOf": "Câu {{current}}/{{total}}",
+    "points": "{{count}} điểm",
+    "answered": "Đã trả lời {{answered}}/{{total}}",
+    "prev": "Câu trước",
+    "next": "Câu sau",
+    "submit": "Nộp bài",
+    "flag": "Đánh dấu xem lại",
+    "flagged": "Đã đánh dấu",
+    "confirmTitle": "Nộp bài?",
+    "confirmUnanswered": "Bạn còn {{count}} câu chưa trả lời.",
+    "confirmAll": "Bạn đã trả lời tất cả câu hỏi.",
+    "keepGoing": "Làm tiếp",
+    "unsupported": "Dạng câu hỏi này chưa được hỗ trợ trên ứng dụng."
+  },
+  "result": {
+    "title": "Kết quả",
+    "passed": "Đạt",
+    "failed": "Chưa đạt",
+    "score": "Điểm",
+    "correct": "Câu đúng",
+    "answered": "Đã trả lời",
+    "timeSpent": "Thời gian",
+    "passMark": "Điểm đạt {{percent}}%",
+    "bySection": "Theo phần",
+    "byDomain": "Theo lĩnh vực",
+    "byDifficulty": "Theo độ khó",
+    "tally": "{{correct}}/{{total}} câu đúng",
+    "review": "Xem lại đáp án",
+    "done": "Về danh sách đề"
+  },
+  "review": {
+    "title": "Xem lại đáp án",
+    "correct": "Đúng",
+    "wrong": "Sai",
+    "notAnswered": "Chưa trả lời",
+    "explanation": "Giải thích"
+  },
+  "history": {
+    "title": "Lịch sử làm bài",
+    "empty": "Bạn chưa làm bài nào",
+    "score": "{{score}}/{{max}} điểm"
+  },
+  "reports": {
+    "title": "Báo cáo",
+    "modeSingle": "Một đề",
+    "modeMultiple": "So sánh",
+    "pickExam": "Chọn đề",
+    "pickExams": "Chọn đề để so sánh",
+    "pickMore": "Chọn thêm {{count}} đề để so sánh",
+    "maxReached": "Đã chọn tối đa {{max}} đề",
+    "selectedCount": "Đã chọn {{count}}/{{max}} đề",
+    "empty": "Hoàn thành ít nhất một bài thi để xem báo cáo",
+    "attemptCount": "{{count}} lần làm",
+    "avgCorrect": "Tỉ lệ câu đúng trung bình",
+    "latest": "Lần gần nhất",
+    "best": "Cao nhất",
+    "attempts": "Số lần làm",
+    "avgTime": "Thời gian TB mỗi câu",
+    "perAnswer": "{{time}}/câu",
+    "estimated": "Ước tính",
+    "estimatedHint": "Một số lần làm được ghi trước khi ứng dụng đo thời gian từng câu, nên thời gian được ước tính từ tổng thời gian làm bài.",
+    "outcomes": "Kết quả trả lời",
+    "correct": "Đúng",
+    "wrong": "Sai",
+    "unanswered": "Bỏ trống",
+    "correctCaption": "câu đúng",
+    "outcomeValue": "{{count}} · {{percent}}%",
+    "outcomesSummary": "{{correct}} câu đúng, {{wrong}} câu sai, {{unanswered}} câu bỏ trống",
+    "trend": "Tỉ lệ câu đúng qua các lần làm",
+    "attemptAxis": "Lần làm bài",
+    "attemptValue": "Lần {{n}}: {{percent}}%",
+    "oneAttempt": "Làm thêm bài để thấy xu hướng",
+    "byDomain": "Theo lĩnh vực",
+    "noDomain": "Chưa phân loại",
+    "domainTally": "{{correct}}/{{total}} đúng · {{percent}}%",
+    "domainTime": "TB {{time}}/câu",
+    "overview": "Từng đề",
+    "examStats": "TB {{percent}}% · {{count}} lần làm",
+    "notCovered": "Không có câu",
+    "notEnough": "Chọn ít nhất 2 đề để so sánh"
+  },
+  "status": {
+    "IN_PROGRESS": "Đang làm",
+    "SUBMITTED": "Đã nộp",
+    "EXPIRED": "Hết giờ"
+  },
+  "difficulty": {
+    "EASY": "Dễ",
+    "MEDIUM": "Trung bình",
+    "HARD": "Khó"
   },
   "settings": {
     "title": "Cài đặt",
@@ -48,7 +155,12 @@
     },
     "account": "Tài khoản",
     "signOut": "Đăng xuất",
-    "version": "Phiên bản {{version}}"
+    "version": "Phiên bản {{version}}",
+    "role": {
+      "USER": "Học viên",
+      "HOST": "Người soạn đề",
+      "ADMIN": "Quản trị"
+    }
   },
   "errors": {
     "network": "Không có kết nối mạng. Kiểm tra Internet rồi thử lại.",

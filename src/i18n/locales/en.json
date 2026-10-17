@@ -6,31 +6,138 @@
     "goHome": "Go home"
   },
   "tabs": {
-    "home": "Home",
+    "home": "Exams",
+    "history": "History",
+    "reports": "Reports",
     "settings": "Settings"
   },
   "auth": {
     "title": "Sign in",
     "subtitle": "Welcome to Q Bank",
-    "username": "Username",
-    "usernamePlaceholder": "Enter your username",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email",
     "password": "Password",
     "passwordPlaceholder": "Enter your password",
     "submit": "Sign in",
-    "demoHint": "Demo account: emilys / emilyspass",
     "validation": {
-      "usernameRequired": "Please enter your username",
-      "passwordMin": "Password must be at least {{count}} characters"
+      "emailInvalid": "Please enter a valid email",
+      "passwordRequired": "Please enter your password"
     }
   },
   "home": {
     "greeting": "Hi, {{name}}",
-    "title": "Latest posts",
-    "views": "{{count}} views",
-    "likes": "{{count}} likes"
+    "title": "Exams",
+    "questions": "{{count}} questions",
+    "minutes": "{{count}} min",
+    "untimed": "Untimed",
+    "passMark": "Pass {{percent}}%"
   },
-  "post": {
-    "title": "Post details"
+  "exam": {
+    "title": "Exam details",
+    "by": "By {{name}}",
+    "questions": "Questions",
+    "duration": "Time",
+    "passMark": "Pass mark",
+    "noPassMark": "None",
+    "totalPoints": "Total points",
+    "structure": "Structure",
+    "sectionQuestions": "{{count}} questions",
+    "myAttempts": "You have taken it {{count}} times",
+    "start": "Start",
+    "resume": "Resume"
+  },
+  "attempt": {
+    "title": "Test",
+    "questionOf": "Question {{current}}/{{total}}",
+    "points": "{{count}} pt",
+    "answered": "Answered {{answered}}/{{total}}",
+    "prev": "Previous",
+    "next": "Next",
+    "submit": "Submit",
+    "flag": "Mark for review",
+    "flagged": "Marked for review",
+    "confirmTitle": "Submit your answers?",
+    "confirmUnanswered": "You have {{count}} unanswered questions.",
+    "confirmAll": "You have answered every question.",
+    "keepGoing": "Keep going",
+    "unsupported": "This question type is not supported in the app yet."
+  },
+  "result": {
+    "title": "Result",
+    "passed": "Passed",
+    "failed": "Not passed",
+    "score": "Score",
+    "correct": "Correct",
+    "answered": "Answered",
+    "timeSpent": "Time",
+    "passMark": "Pass mark {{percent}}%",
+    "bySection": "By section",
+    "byDomain": "By domain",
+    "byDifficulty": "By difficulty",
+    "tally": "{{correct}}/{{total}} correct",
+    "review": "Review answers",
+    "done": "Back to exams"
+  },
+  "review": {
+    "title": "Review",
+    "correct": "Correct",
+    "wrong": "Wrong",
+    "notAnswered": "Not answered",
+    "explanation": "Explanation"
+  },
+  "history": {
+    "title": "History",
+    "empty": "No attempts yet",
+    "score": "{{score}}/{{max}} pts"
+  },
+  "reports": {
+    "title": "Reports",
+    "modeSingle": "One exam",
+    "modeMultiple": "Compare",
+    "pickExam": "Choose an exam",
+    "pickExams": "Choose exams to compare",
+    "pickMore": "Choose {{count}} more to compare",
+    "maxReached": "You can compare up to {{max}} exams",
+    "selectedCount": "{{count}} of {{max}} selected",
+    "empty": "Finish at least one exam to see reports",
+    "attemptCount": "Attempts: {{count}}",
+    "avgCorrect": "Average correct answers",
+    "latest": "Latest",
+    "best": "Best",
+    "attempts": "Attempts",
+    "avgTime": "Avg. time per answer",
+    "perAnswer": "{{time}} each",
+    "estimated": "Estimated",
+    "estimatedHint": "Some attempts were taken before the app timed each answer, so their time is estimated from the total time spent.",
+    "outcomes": "Answers",
+    "correct": "Correct",
+    "wrong": "Wrong",
+    "unanswered": "Unanswered",
+    "correctCaption": "correct",
+    "outcomeValue": "{{count}} · {{percent}}%",
+    "outcomesSummary": "{{correct}} correct, {{wrong}} wrong, {{unanswered}} unanswered",
+    "trend": "Correct answers by attempt",
+    "attemptAxis": "Attempt",
+    "attemptValue": "Attempt {{n}}: {{percent}}%",
+    "oneAttempt": "Take it again to see a trend",
+    "byDomain": "By domain",
+    "noDomain": "Unassigned",
+    "domainTally": "{{correct}}/{{total}} correct · {{percent}}%",
+    "domainTime": "Avg. {{time}} each",
+    "overview": "Exams",
+    "examStats": "Avg. {{percent}}% · {{count}} attempts",
+    "notCovered": "No questions",
+    "notEnough": "Choose at least 2 exams to compare"
+  },
+  "status": {
+    "IN_PROGRESS": "In progress",
+    "SUBMITTED": "Submitted",
+    "EXPIRED": "Time up"
+  },
+  "difficulty": {
+    "EASY": "Easy",
+    "MEDIUM": "Medium",
+    "HARD": "Hard"
   },
   "settings": {
     "title": "Settings",
@@ -48,7 +155,12 @@
     },
     "account": "Account",
     "signOut": "Sign out",
-    "version": "Version {{version}}"
+    "version": "Version {{version}}",
+    "role": {
+      "USER": "Student",
+      "HOST": "Author",
+      "ADMIN": "Admin"
+    }
   },
   "errors": {
     "network": "No connection. Check your internet and try again.",

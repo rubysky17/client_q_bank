@@ -40,7 +40,8 @@ If `expo install` times out reaching the Expo API, prefix it with `EXPO_OFFLINE=
 ## Rules
 
 - State: server data → TanStack Query; UI/client state that must survive restarts → zustand + `persist` (MMKV); secrets/tokens → `expo-secure-store`. Read zustand with one selector per value: `useSettingsStore((s) => s.theme)`.
-- API: validate every response with a zod schema: `api.get('x').json(XSchema)`. Show errors with `describeError(error, t)`.
+- API: validate every response with a zod schema: `api.get('x').json(XSchema)`. Show errors with `describeError(error, t)`; branch on the server's stable code with `toApiError(error).serverCode` (e.g. `ATTEMPT_EXPIRED`).
+- Backend: Q Bank API (`../back_q_bank`). `EXPO_PUBLIC_API_URL` includes `/api/v1` (env.ts appends the trailing `/` ky needs). The client refreshes an expired access token once and replays the request (`src/api/client.ts`); keep `retry: { limit: 1, methods: [] }`, it is what allows that replay. Shapes of server responses live next to their hooks in `src/api/<resource>.ts`.
 - Styling: Uniwind `className` with HeroUI tokens (`bg-background`, `text-foreground`, `text-muted`, `bg-accent`…). No hard-coded colors; use `useThemeColor('token')` when a prop needs a raw color.
 - Lists: `FlashList`, never `ScrollView` + `map` for data. List items take primitive props and do no fetching.
 - Rendering: never `{value && <X/>}` with a possibly falsy number/string — use a ternary (lint enforced).

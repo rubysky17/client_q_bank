@@ -17,12 +17,18 @@ describe('toApiError', () => {
     expect(toApiError(httpError(401)).code).toBe('unauthorized');
   });
 
-  it('keeps the status and the server message for other HTTP errors', () => {
-    const error = toApiError(httpError(400, { message: 'Invalid credentials' }));
+  it('keeps the status, server message and server code for other HTTP errors', () => {
+    const error = toApiError(
+      httpError(409, {
+        code: 'ATTEMPT_CLOSED',
+        message: 'This attempt has already been submitted',
+      }),
+    );
     expect(error).toMatchObject({
       code: 'http',
-      status: 400,
-      serverMessage: 'Invalid credentials',
+      status: 409,
+      serverCode: 'ATTEMPT_CLOSED',
+      serverMessage: 'This attempt has already been submitted',
     });
   });
 

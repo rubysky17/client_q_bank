@@ -16,7 +16,13 @@ Boilerplate React Native năm 2026, ưu tiên Android, **build hoàn toàn trên
 | Debug        | React Native DevTools + Rozenite (panel TanStack Query, MMKV)                             |
 | Chất lượng   | TypeScript strict, ESLint, Prettier, Jest (jest-expo)                                     |
 
-App demo dùng [DummyJSON](https://dummyjson.com): đăng nhập (`emilys` / `emilyspass`, tự điền sẵn khi dev) → danh sách bài viết (cuộn vô hạn, kéo để làm mới) → trang chi tiết → Cài đặt (theme, ngôn ngữ, đăng xuất).
+App kết nối backend **Q Bank API** (`../back_q_bank`, chạy trên Cloudflare Workers):
+
+- Đăng nhập bằng email/mật khẩu (tài khoản duy nhất cấu hình trên server). Access token tự refresh khi hết hạn; refresh token hỏng thì tự đăng xuất.
+- **Đề thi**: danh sách đề đã publish → chi tiết đề → bắt đầu hoặc tiếp tục bài đang làm.
+- **Làm bài**: đồng hồ đếm ngược theo giờ server, lưu đáp án ngay khi chọn, đánh dấu câu cần xem lại, dải số câu để nhảy nhanh, tự nộp khi hết giờ.
+- **Kết quả**: điểm, đạt/chưa đạt, thống kê theo phần, lĩnh vực và độ khó; **xem lại đáp án** kèm giải thích.
+- **Lịch sử** làm bài và **Cài đặt** (tài khoản, theme, ngôn ngữ, đăng xuất).
 
 ## 1. Chuẩn bị môi trường (chỉ làm một lần)
 
@@ -29,7 +35,7 @@ App demo dùng [DummyJSON](https://dummyjson.com): đăng nhập (`emilys` / `em
 
 ```bash
 npm install
-cp .env.example .env.local   # tùy chọn: đổi EXPO_PUBLIC_API_URL
+cp .env.example .env.local   # tùy chọn: trỏ EXPO_PUBLIC_API_URL vào backend local (mặc định: production)
 ```
 
 ## 2. Chạy khi phát triển
@@ -103,7 +109,7 @@ Quy ước code chi tiết (cho người và cho AI) nằm trong [AGENTS.md](AGE
 
 ## 7. Thêm một màn hình gọi API (ví dụ)
 
-1. Khai báo schema và hook trong `src/api/<resource>.ts`, theo mẫu [src/api/posts.ts](src/api/posts.ts).
+1. Khai báo schema và hook trong `src/api/<resource>.ts`, theo mẫu [src/api/catalog.ts](src/api/catalog.ts).
 2. Viết màn hình trong `src/screens/<tên>/index.tsx`.
 3. Tạo route `src/app/(app)/<tên>.tsx` chỉ render màn hình đó.
 4. Thêm chuỗi hiển thị vào **cả** `vi.json` và `en.json`.

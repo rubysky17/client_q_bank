@@ -2,45 +2,51 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-import { Card, PressableFeedback, Text } from '@/components/ui';
-import { formatCompactNumber } from '@/utils/format-number';
+import { Card, Chip, PressableFeedback, Text } from '@/components/ui';
 
 /** Only the first screenful animates in; recycled cells further down appear instantly. */
 const ANIMATED_ITEMS = 8;
 
-type PostCardProps = {
-  id: number;
+type ExamCardProps = {
+  id: string;
   title: string;
-  body: string;
-  views: number;
-  likes: number;
+  topic: string;
+  questionsLabel: string;
+  durationLabel: string;
+  passLabel: string | null;
   index: number;
   iconColor: string;
-  onPress: (id: number) => void;
+  onPress: (id: string) => void;
 };
 
 // List item: primitive props only, no data fetching, no context reads.
-export function PostCard({
+export function ExamCard({
   id,
   title,
-  body,
-  views,
-  likes,
+  topic,
+  questionsLabel,
+  durationLabel,
+  passLabel,
   index,
   iconColor,
   onPress,
-}: PostCardProps) {
+}: ExamCardProps) {
   return (
     <Animated.View
       entering={index < ANIMATED_ITEMS ? FadeInDown.delay(index * 60).springify() : undefined}
     >
       <PressableFeedback onPress={() => onPress(id)} className="rounded-3xl">
-        <Card className="gap-2">
+        <Card className="gap-3">
+          <View className="flex-row">
+            <Chip size="sm" variant="soft" color="accent">
+              <Chip.Label>{topic}</Chip.Label>
+            </Chip>
+          </View>
           <Card.Title numberOfLines={2}>{title}</Card.Title>
-          <Card.Description numberOfLines={2}>{body}</Card.Description>
-          <View className="flex-row gap-4 pt-1">
-            <Stat icon="eye-outline" value={views} color={iconColor} />
-            <Stat icon="heart-outline" value={likes} color={iconColor} />
+          <View className="flex-row flex-wrap gap-4">
+            <Stat icon="help-circle-outline" label={questionsLabel} color={iconColor} />
+            <Stat icon="time-outline" label={durationLabel} color={iconColor} />
+            {passLabel ? <Stat icon="ribbon-outline" label={passLabel} color={iconColor} /> : null}
           </View>
         </Card>
       </PressableFeedback>
@@ -49,17 +55,17 @@ export function PostCard({
 }
 
 type StatProps = {
-  icon: 'eye-outline' | 'heart-outline';
-  value: number;
+  icon: 'help-circle-outline' | 'time-outline' | 'ribbon-outline';
+  label: string;
   color: string;
 };
 
-function Stat({ icon, value, color }: StatProps) {
+function Stat({ icon, label, color }: StatProps) {
   return (
     <View className="flex-row items-center gap-1">
       <Ionicons name={icon} size={14} color={color} />
       <Text type="body-xs" color="muted">
-        {formatCompactNumber(value)}
+        {label}
       </Text>
     </View>
   );

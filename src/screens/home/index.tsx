@@ -1,33 +1,35 @@
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { usePosts } from '@/api/posts';
+import { useCatalog } from '@/api/catalog';
 import { EmptyView, ErrorView, LoadingView, Spinner, useThemeColor } from '@/components/ui';
 
+import { ExamCard } from './exam-card';
 import { HomeHeader } from './home-header';
-import { PostCard } from './post-card';
 
 export function HomeScreen() {
+  const { t } = useTranslation();
   const { push } = useRouter();
   const insets = useSafeAreaInsets();
   const mutedColor = useThemeColor('muted');
   const {
-    data: posts,
+    data: exams,
     error,
     isPending,
     refetch,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = usePosts();
+  } = useCatalog();
   // Separate flag so background refetches don't show the pull-to-refresh spinner.
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // One callback for every row (rows call it with their id).
-  const openPost = (id: number) => push({ pathname: '/posts/[id]', params: { id: String(id) } });
+  const openExam = (id: string) => push({ pathname: '/exams/[id]', params: { id } });
 
   const refresh = async () => {
     setIsRefreshing(true);
@@ -43,22 +45,29 @@ export function HomeScreen() {
   };
 
   if (isPending) return <LoadingView />;
-  if (!posts) return <ErrorView error={error} onRetry={refetch} />;
+  if (!exams) return <ErrorView error={error} onRetry={refetch} />;
 
   return (
     <FlashList
-      data={posts}
-      keyExtractor={(post) => String(post.id)}
+      data={exams}
+      keyExtractor={(exam) => exam.id}
       renderItem={({ item, index }) => (
-        <PostCard
+        <ExamCard
           id={item.id}
           title={item.title}
-          body={item.body}
-          views={item.views}
-          likes={item.reactions.likes}
+          topic={item.topic.name}
+          questionsLabel={t('home.questions', { count: item.questionCount })}
+          durationLabel={
+            item.durationMinutes === null
+              ? t('home.untimed')
+              : t('home.minutes', { count: item.durationMinutes })
+          }
+          passLabel={
+            item.passingScore === null ? null : t('home.passMark', { percent: item.passingScore })
+          }
           index={index}
           iconColor={mutedColor}
-          onPress={openPost}
+          onPress={openExam}
         />
       )}
       ItemSeparatorComponent={Gap}

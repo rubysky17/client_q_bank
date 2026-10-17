@@ -1,23 +1,29 @@
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { useMe } from '@/api/auth';
-import { Avatar, Card, Skeleton, Text } from '@/components/ui';
+import { Avatar, Card, Chip, Skeleton, Text } from '@/components/ui';
 
 export function AccountCard() {
+  const { t } = useTranslation();
   const { data: me } = useMe();
 
   return (
     <Card className="flex-row items-center gap-3">
-      <Avatar alt={me?.firstName ?? ''} size="lg">
-        {me ? <Avatar.Image source={{ uri: me.image }} /> : null}
-        <Avatar.Fallback>{me?.firstName.charAt(0) ?? ''}</Avatar.Fallback>
+      <Avatar alt={me?.fullName ?? ''} size="lg">
+        <Avatar.Fallback>{me?.fullName.charAt(0).toUpperCase() ?? ''}</Avatar.Fallback>
       </Avatar>
       {me ? (
-        <View className="flex-1 gap-0.5">
-          <Text weight="semibold">{`${me.firstName} ${me.lastName}`}</Text>
+        <View className="flex-1 gap-1">
+          <Text weight="semibold">{me.fullName}</Text>
           <Text type="body-sm" color="muted" truncate>
             {me.email}
           </Text>
+          <View className="flex-row">
+            <Chip size="sm" variant="soft" color="accent">
+              <Chip.Label>{t(`settings.role.${me.role}`)}</Chip.Label>
+            </Chip>
+          </View>
         </View>
       ) : (
         <View className="flex-1 gap-2">
