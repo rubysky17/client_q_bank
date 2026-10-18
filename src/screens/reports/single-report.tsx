@@ -3,11 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { type ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { catalogExamQueryOptions } from '@/api/catalog';
 import { type ExamReport, useExamReport } from '@/api/reports';
-import { ErrorView, Spinner, Text, useThemeColor } from '@/components/ui';
+import { ErrorView, Spinner, Text, useThemeColor, useTabScrollInsets } from '@/components/ui';
 import { formatClockMs } from '@/utils/format-duration';
 
 import { ActivityCard } from './activity-card';
@@ -26,7 +25,7 @@ type SingleReportProps = {
 
 export function SingleReport({ examId, header, onRefresh }: SingleReportProps) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const { contentInsetAdjustmentBehavior, paddingTop } = useTabScrollInsets();
   const accent = useThemeColor('accent');
   const { data: report, error, isPending, isPlaceholderData, refetch } = useExamReport(examId);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -151,8 +150,9 @@ export function SingleReport({ examId, header, onRefresh }: SingleReportProps) {
       }
       refreshing={isRefreshing}
       onRefresh={refresh}
+      contentInsetAdjustmentBehavior={contentInsetAdjustmentBehavior}
       contentContainerStyle={{
-        paddingTop: insets.top + 12,
+        paddingTop,
         paddingHorizontal: 16,
         paddingBottom: 24,
       }}

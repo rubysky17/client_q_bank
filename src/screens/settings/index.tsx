@@ -3,12 +3,18 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Linking, ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { pendingUploadCount, syncAllAttemptsNow } from '@/api/attempt-sync';
 import { useLogout, useLogoutAll, useMe } from '@/api/auth';
 import { describeError } from '@/api/errors';
-import { Button, SegmentedControl, Spinner, Switch, Text } from '@/components/ui';
+import {
+  Button,
+  SegmentedControl,
+  Spinner,
+  Switch,
+  Text,
+  useTabScrollInsets,
+} from '@/components/ui';
 import { env } from '@/lib/env';
 import { areRemindersAvailable, cancelStudyReminder, scheduleStudyReminder } from '@/lib/reminders';
 import { useLocalAttempts } from '@/stores/attempt-sessions';
@@ -37,7 +43,7 @@ const clock = ({ hour, minute }: ReminderTime) => `${pad(hour)}:${pad(minute)}`;
 
 export function SettingsScreen() {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const { contentInsetAdjustmentBehavior, paddingTop } = useTabScrollInsets();
   const { push } = useRouter();
   // One selector per value: this screen re-renders only when these fields change.
   const theme = useSettingsStore((s) => s.theme);
@@ -56,8 +62,9 @@ export function SettingsScreen() {
 
   return (
     <ScrollView
+      contentInsetAdjustmentBehavior={contentInsetAdjustmentBehavior}
       contentContainerClassName="gap-5 px-4 pb-10"
-      contentContainerStyle={{ paddingTop: insets.top + 12 }}
+      contentContainerStyle={{ paddingTop }}
     >
       <Text type="h2">{t('settings.title')}</Text>
 

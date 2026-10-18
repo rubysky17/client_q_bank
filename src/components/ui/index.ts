@@ -18,4 +18,5 @@ export { ProgressRing } from './progress-ring';
 export { ErrorView } from './error-view';
 export { LoadingView } from './loading-view';
 export { SegmentedControl } from './segmented-control';
+export { useTabScrollInsets } from './tab-scroll-insets';
 export * from './charts';

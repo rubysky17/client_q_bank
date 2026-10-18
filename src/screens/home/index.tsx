@@ -7,7 +7,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCatalog } from '@/api/catalog';
 import { useReportExams } from '@/api/reports';
-import { EmptyView, ErrorView, Spinner, toneFor, useThemeColor } from '@/components/ui';
+import {
+  EmptyView,
+  ErrorView,
+  Spinner,
+  toneFor,
+  useThemeColor,
+  useTabScrollInsets,
+} from '@/components/ui';
 
 import { ContinueCards } from './continue-cards';
 import { ExamCard } from './exam-card';
@@ -18,6 +25,7 @@ export function HomeScreen() {
   const { t } = useTranslation();
   const { push } = useRouter();
   const insets = useSafeAreaInsets();
+  const { contentInsetAdjustmentBehavior, paddingTop } = useTabScrollInsets();
   const mutedColor = useThemeColor('muted');
   const {
     data: exams,
@@ -103,8 +111,9 @@ export function HomeScreen() {
       onEndReachedThreshold={0.5}
       refreshing={isRefreshing}
       onRefresh={refresh}
+      contentInsetAdjustmentBehavior={contentInsetAdjustmentBehavior}
       contentContainerStyle={{
-        paddingTop: insets.top + 12,
+        paddingTop,
         paddingHorizontal: 16,
         paddingBottom: 24,
       }}

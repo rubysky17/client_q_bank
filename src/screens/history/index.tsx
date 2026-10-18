@@ -4,7 +4,6 @@ import type { TFunction } from 'i18next';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { type AttemptListItem, type AttemptStatus, useAttempts } from '@/api/attempts';
 import {
@@ -15,6 +14,7 @@ import {
   Spinner,
   Text,
   toneFor,
+  useTabScrollInsets,
 } from '@/components/ui';
 
 import { AttemptRow, type RowOutcome } from './attempt-row';
@@ -34,7 +34,7 @@ function statusLabel(attempt: AttemptListItem, outcome: RowOutcome, t: TFunction
 export function HistoryScreen() {
   const { t, i18n } = useTranslation();
   const { push } = useRouter();
-  const insets = useSafeAreaInsets();
+  const { contentInsetAdjustmentBehavior, paddingTop } = useTabScrollInsets();
   const {
     data: attempts,
     error,
@@ -147,8 +147,9 @@ export function HistoryScreen() {
       onEndReachedThreshold={0.5}
       refreshing={isRefreshing}
       onRefresh={refresh}
+      contentInsetAdjustmentBehavior={contentInsetAdjustmentBehavior}
       contentContainerStyle={{
-        paddingTop: insets.top + 12,
+        paddingTop,
         paddingHorizontal: 16,
         paddingBottom: 24,
       }}

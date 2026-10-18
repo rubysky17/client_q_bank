@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Difficulty } from '@/api/attempts';
 import {
@@ -26,6 +25,7 @@ import {
   Spinner,
   Text,
   toneFor,
+  useTabScrollInsets,
 } from '@/components/ui';
 
 import { BankRow } from './bank-row';
@@ -35,7 +35,7 @@ import { toParams } from './filters';
 export function BankScreen() {
   const { t } = useTranslation();
   const { push } = useRouter();
-  const insets = useSafeAreaInsets();
+  const { contentInsetAdjustmentBehavior, paddingTop } = useTabScrollInsets();
   const [filters, setFilters] = useState<BankFilters>({});
   const { data: facets, error: facetsError, refetch: refetchFacets } = useBankFacets();
   const { data, error, isPending, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
@@ -105,8 +105,9 @@ export function BankScreen() {
       ListFooterComponent={isFetchingNextPage ? <Spinner className="my-6 self-center" /> : null}
       onEndReached={loadMore}
       onEndReachedThreshold={0.5}
+      contentInsetAdjustmentBehavior={contentInsetAdjustmentBehavior}
       contentContainerStyle={{
-        paddingTop: insets.top + 12,
+        paddingTop,
         paddingHorizontal: 16,
         paddingBottom: 24,
       }}

@@ -2,10 +2,16 @@ import { FlashList } from '@shopify/flash-list';
 import { type ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { type ExamReport, useCompareReport } from '@/api/reports';
-import { EmptyView, ErrorView, Spinner, Text, useSeriesColors } from '@/components/ui';
+import {
+  EmptyView,
+  ErrorView,
+  Spinner,
+  Text,
+  useSeriesColors,
+  useTabScrollInsets,
+} from '@/components/ui';
 import { formatClockMs } from '@/utils/format-duration';
 
 import { TrendCard } from './report-cards';
@@ -23,7 +29,7 @@ type CompareReportProps = {
 
 export function CompareReport({ selection, header, onRefresh }: CompareReportProps) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const { contentInsetAdjustmentBehavior, paddingTop } = useTabScrollInsets();
   const seriesColors = useSeriesColors();
   const examIds = selection.map((s) => s.examId);
   const canCompare = examIds.length >= 2;
@@ -138,8 +144,9 @@ export function CompareReport({ selection, header, onRefresh }: CompareReportPro
       }
       refreshing={isRefreshing}
       onRefresh={refresh}
+      contentInsetAdjustmentBehavior={contentInsetAdjustmentBehavior}
       contentContainerStyle={{
-        paddingTop: insets.top + 12,
+        paddingTop,
         paddingHorizontal: 16,
         paddingBottom: 24,
       }}
