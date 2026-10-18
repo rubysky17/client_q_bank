@@ -2,24 +2,36 @@ import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
 
 const ACCESS_TOKEN_KEY = 'auth.accessToken';
+const REFRESH_TOKEN_KEY = 'auth.refreshToken';
+
+export type SessionTokens = { accessToken: string; refreshToken: string };
 
 type AuthState = {
-  /** In-memory copy of the token; the source of truth lives in the encrypted SecureStore. */
+  /** In-memory copies of the tokens; the source of truth lives in the encrypted SecureStore. */
   accessToken: string | null;
-  signIn: (accessToken: string) => Promise<void>;
+  refreshToken: string | null;
+  /** Saves a new token pair (sign-in and every refresh rotate both). */
+  setTokens: (tokens: SessionTokens) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
 export const useAuthStore = create<AuthState>()((set) => ({
-  // Synchronous read so the first render already knows whether the user is signed in.
+  // Synchronous reads so the first render already knows whether the user is signed in.
   accessToken: SecureStore.getItem(ACCESS_TOKEN_KEY),
-  signIn: async (accessToken) => {
-    await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, accessToken);
-    set({ accessToken });
+  refreshToken: SecureStore.getItem(REFRESH_TOKEN_KEY),
+  setTokens: async ({ accessToken, refreshToken }) => {
+    await Promise.all([
+      SecureStore.setItemAsync(ACCESS_TOKEN_KEY, accessToken),
+      SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refreshToken),
+    ]);
+    set({ accessToken, refreshToken });
   },
   signOut: async () => {
-    await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-    set({ accessToken: null });
+    await Promise.all([
+      SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY),
+      SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY),
+    ]);
+    set({ accessToken: null, refreshToken: null });
   },
 }));
 

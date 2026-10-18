@@ -8,3 +8,4 @@ export { EmptyView } from './empty-view';
 export { ErrorView } from './error-view';
 export { LoadingView } from './loading-view';
 export { SegmentedControl } from './segmented-control';
+export * from './charts';

@@ -1,27 +1,15 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query';
-import { z } from 'zod';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { getDeviceInfo } from '@/lib/device';
 import { useAuthStore } from '@/stores/auth-store';
 
 import { api, endSession } from './client';
 import { queryKeys } from './query-keys';
+import { AuthResponseSchema, UserSchema } from './session';
 
-export const UserSchema = z.object({
-  id: z.number(),
-  username: z.string(),
-  email: z.string(),
-  firstName: z.string(),
-  lastName: z.string(),
-  image: z.string(),
-});
-export type User = z.infer<typeof UserSchema>;
+export { type User, UserSchema } from './session';
 
-const LoginResponseSchema = UserSchema.extend({
-  accessToken: z.string(),
-  refreshToken: z.string(),
-});
-
-export type LoginInput = { username: string; password: string };
+export type LoginInput = { email: string; password: string };
 
 export const meQueryOptions = queryOptions({
   queryKey: queryKeys.auth.me,
@@ -34,14 +22,16 @@ export function useMe() {
 }
 
 export function useLogin() {
-  const signIn = useAuthStore((s) => s.signIn);
+  const queryClient = useQueryClient();
+  const setTokens = useAuthStore((s) => s.setTokens);
 
   return useMutation({
     mutationKey: ['auth', 'login'],
     mutationFn: (input: LoginInput) =>
-      api.post('auth/login', { json: { ...input, expiresInMins: 60 } }).json(LoginResponseSchema),
-    onSuccess: async ({ accessToken }) => {
-      await signIn(accessToken);
+      api.post('auth/login', { json: { ...input, ...getDeviceInfo() } }).json(AuthResponseSchema),
+    onSuccess: async (session) => {
+      queryClient.setQueryData(queryKeys.auth.me, session.user);
+      await setTokens(session);
     },
   });
 }
@@ -49,6 +39,10 @@ export function useLogin() {
 export function useLogout() {
   return useMutation({
     mutationKey: ['auth', 'logout'],
-    mutationFn: endSession,
+    mutationFn: async () => {
+      // Best effort: end the server session too, but never keep the user signed in on failure.
+      await api.post('auth/logout').catch(() => undefined);
+      await endSession();
+    },
   });
 }

@@ -1,7 +1,7 @@
 import { useMMKVDevTools } from '@rozenite/mmkv-plugin';
 import { useTanStackQueryDevTools } from '@rozenite/tanstack-query-plugin';
 
-import { storage } from '@/stores/storage';
+import { mmkv, MMKV_ID } from '@/stores/storage';
 
 import { queryClient } from './query-client';
 
@@ -12,6 +12,7 @@ import { queryClient } from './query-client';
  */
 export function DevTools() {
   useTanStackQueryDevTools(queryClient);
-  useMMKVDevTools({ storages: [storage] });
+  // A record, not an array: MMKV v4 instances don't expose their ID.
+  useMMKVDevTools({ storages: mmkv ? { [MMKV_ID]: mmkv } : {} });
   return null;
 }

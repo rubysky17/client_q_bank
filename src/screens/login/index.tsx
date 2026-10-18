@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import type { z } from 'zod';
 import { StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -14,17 +15,18 @@ import { Button, Card, Spinner, Text, useThemeColor } from '@/components/ui';
 
 import { createLoginSchema, type LoginValues } from './schema';
 
-// Pre-filled in development so you can sign in with one tap while debugging.
-const DEFAULT_VALUES: LoginValues = __DEV__
-  ? { username: 'emilys', password: 'emilyspass' }
-  : { username: '', password: '' };
+const DEFAULT_VALUES: LoginValues = { email: '', password: '' };
 
 export function LoginScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const accentForeground = useThemeColor('accent-foreground');
   const { mutate: login, isPending, error } = useLogin();
-  const { control, handleSubmit, setFocus } = useForm<LoginValues>({
+  const { control, handleSubmit, setFocus } = useForm<
+    LoginValues,
+    unknown,
+    z.output<ReturnType<typeof createLoginSchema>>
+  >({
     resolver: zodResolver(createLoginSchema(t)),
     defaultValues: DEFAULT_VALUES,
   });
@@ -53,13 +55,14 @@ export function LoginScreen() {
           <Card.Body className="gap-4">
             <FormTextField
               control={control}
-              name="username"
-              label={t('auth.username')}
-              placeholder={t('auth.usernamePlaceholder')}
+              name="email"
+              label={t('auth.email')}
+              placeholder={t('auth.emailPlaceholder')}
               autoCapitalize="none"
               autoCorrect={false}
-              autoComplete="username"
-              textContentType="username"
+              keyboardType="email-address"
+              autoComplete="email"
+              textContentType="emailAddress"
               returnKeyType="next"
               submitBehavior="submit"
               onSubmitEditing={() => setFocus('password')}
@@ -83,10 +86,6 @@ export function LoginScreen() {
           </Card.Body>
         </Card>
       </Animated.View>
-
-      <Text type="body-sm" color="muted" align="center">
-        {t('auth.demoHint')}
-      </Text>
     </KeyboardAwareScrollView>
   );
 }

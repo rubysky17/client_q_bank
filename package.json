@@ -5,6 +5,7 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start --dev-client",
+    "start:go": "expo start --go",
     "devtools": "WITH_ROZENITE=true expo start --dev-client",
     "android": "expo run:android",
     "android:release": "expo run:android --variant release",

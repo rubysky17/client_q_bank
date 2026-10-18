@@ -8,14 +8,36 @@
  * Theme tokens: override HeroUI variables here (colors, radius, fonts).
  * Full list: node_modules/heroui-native/lib/module/styles/variables.css
  */
+/*
+ * Chart series colors (one per compared exam), read with useCSSVariable (so declared `static`).
+ * Green and red are left out on purpose: they mean correct and wrong.
+ */
+@theme inline static {
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
 @layer theme {
   :root {
     @variant light {
       --radius: 0.5rem;
+      --chart-1: #2a78d6;
+      --chart-2: #eb6834;
+      --chart-3: #6250d6;
+      --chart-4: #eda100;
+      --chart-5: #e87ba4;
     }
 
     @variant dark {
       --radius: 0.5rem;
+      --chart-1: #3987e5;
+      --chart-2: #d95926;
+      --chart-3: #9085e9;
+      --chart-4: #c98500;
+      --chart-5: #d55181;
     }
   }
 }

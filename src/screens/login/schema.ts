@@ -1,16 +1,16 @@
 import type { TFunction } from 'i18next';
 import { z } from 'zod';
 
-export const PASSWORD_MIN_LENGTH = 6;
-
 /** Built with `t` so validation messages follow the current language. */
 export function createLoginSchema(t: TFunction) {
   return z.object({
-    username: z.string().trim().min(1, t('auth.validation.usernameRequired')),
-    password: z
+    email: z
       .string()
-      .min(PASSWORD_MIN_LENGTH, t('auth.validation.passwordMin', { count: PASSWORD_MIN_LENGTH })),
+      .trim()
+      .toLowerCase()
+      .pipe(z.email(t('auth.validation.emailInvalid'))),
+    password: z.string().min(1, t('auth.validation.passwordRequired')),
   });
 }
 
-export type LoginValues = z.infer<ReturnType<typeof createLoginSchema>>;
+export type LoginValues = z.input<ReturnType<typeof createLoginSchema>>;
