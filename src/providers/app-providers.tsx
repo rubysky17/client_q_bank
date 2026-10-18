@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import { startAttemptSync } from '@/api/attempt-sync';
+import { configureNotifications } from '@/lib/reminders';
 
 import { DevTools } from './dev-tools';
 import { NavigationTheme } from './navigation-theme';
@@ -16,6 +17,7 @@ import { queryClient } from './query-client';
 import { startSettingsSync } from './settings-sync';
 
 startSettingsSync();
+configureNotifications();
 startAttemptSync();
 
 /** Every app-wide provider, outermost first. Add new ones here, not in route files. */

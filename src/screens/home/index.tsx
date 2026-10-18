@@ -6,11 +6,13 @@ import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCatalog } from '@/api/catalog';
-import { EmptyView, ErrorView, LoadingView, Spinner, useThemeColor } from '@/components/ui';
+import { useReportExams } from '@/api/reports';
+import { EmptyView, ErrorView, Spinner, toneFor, useThemeColor } from '@/components/ui';
 
 import { ContinueCards } from './continue-cards';
 import { ExamCard } from './exam-card';
 import { HomeHeader } from './home-header';
+import { HomeSkeleton } from './home-skeleton';
 
 export function HomeScreen() {
   const { t } = useTranslation();
@@ -26,6 +28,8 @@ export function HomeScreen() {
     hasNextPage,
     isFetchingNextPage,
   } = useCatalog();
+  const { data: reportExams } = useReportExams();
+  const avgByExam = new Map(reportExams?.map((r) => [r.examId, r.avgCorrectPercent]));
   // Separate flag so background refetches don't show the pull-to-refresh spinner.
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -45,7 +49,7 @@ export function HomeScreen() {
     if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
   };
 
-  if (isPending) return <LoadingView />;
+  if (isPending) return <HomeSkeleton />;
   if (!exams) {
     // Offline: the exam list can't load, but unfinished attempts on the device can be continued.
     return (
@@ -62,25 +66,35 @@ export function HomeScreen() {
     <FlashList
       data={exams}
       keyExtractor={(exam) => exam.id}
-      renderItem={({ item, index }) => (
-        <ExamCard
-          id={item.id}
-          title={item.title}
-          topic={item.topic.name}
-          questionsLabel={t('home.questions', { count: item.questionCount })}
-          durationLabel={
-            item.durationMinutes === null
-              ? t('home.untimed')
-              : t('home.minutes', { count: item.durationMinutes })
-          }
-          passLabel={
-            item.passingScore === null ? null : t('home.passMark', { percent: item.passingScore })
-          }
-          index={index}
-          iconColor={mutedColor}
-          onPress={openExam}
-        />
-      )}
+      extraData={reportExams}
+      renderItem={({ item, index }) => {
+        const avgPercent = avgByExam.get(item.id) ?? null;
+        return (
+          <ExamCard
+            id={item.id}
+            title={item.title}
+            topic={item.topic.name}
+            tone={toneFor(item.topic.id)}
+            avgPercent={avgPercent}
+            avgLabel={avgPercent === null ? t('home.notTaken') : t('home.avgCorrect')}
+            isBelowPass={
+              avgPercent !== null && item.passingScore !== null && avgPercent < item.passingScore
+            }
+            questionsLabel={t('home.questions', { count: item.questionCount })}
+            durationLabel={
+              item.durationMinutes === null
+                ? t('home.untimed')
+                : t('home.minutes', { count: item.durationMinutes })
+            }
+            passLabel={
+              item.passingScore === null ? null : t('home.passMark', { percent: item.passingScore })
+            }
+            index={index}
+            iconColor={mutedColor}
+            onPress={openExam}
+          />
+        );
+      }}
       ItemSeparatorComponent={Gap}
       ListHeaderComponent={HomeHeader}
       ListEmptyComponent={EmptyView}

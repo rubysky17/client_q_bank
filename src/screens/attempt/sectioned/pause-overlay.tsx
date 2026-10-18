@@ -1,9 +1,8 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { Button, Text, useThemeColor } from '@/components/ui';
+import { Button, FeatureIcon, GradientButton, Text } from '@/components/ui';
 import { getSession } from '@/stores/attempt-sessions';
 import { formatClockMs } from '@/utils/format-duration';
 
@@ -20,12 +19,11 @@ type PauseOverlayProps = {
 export function PauseOverlay({ attemptId, sectionTitle, onResume }: PauseOverlayProps) {
   const { t } = useTranslation();
   const { back, canGoBack } = useRouter();
-  const muted = useThemeColor('muted');
   const remaining = getSession(attemptId)?.remainingMs() ?? null;
 
   return (
     <View className="absolute inset-0 items-center justify-center gap-6 bg-background p-8">
-      <Ionicons name="pause-circle" size={72} color={muted} />
+      <FeatureIcon icon="pause" />
       <View className="items-center gap-2">
         <Text type="h3">{t('sectioned.paused')}</Text>
         <Text color="muted" className="text-center">
@@ -36,9 +34,7 @@ export function PauseOverlay({ attemptId, sectionTitle, onResume }: PauseOverlay
         </Text>
       </View>
       <View className="w-full gap-3">
-        <Button onPress={onResume}>
-          <Button.Label>{t('sectioned.resume')}</Button.Label>
-        </Button>
+        <GradientButton icon="play" label={t('sectioned.resume')} onPress={onResume} />
         {canGoBack() ? (
           <Button variant="secondary" onPress={back}>
             <Button.Label>{t('sectioned.saveAndExit')}</Button.Label>

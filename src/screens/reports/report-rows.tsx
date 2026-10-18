@@ -1,29 +1,35 @@
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
-import { Card, PieChart, StackedBar, Text, useOutcomeColors } from '@/components/ui';
+import { Card, PieChart, Text, useOutcomeColors } from '@/components/ui';
 
 type DomainRowProps = {
   name: string;
   total: number;
   correct: number;
-  wrong: number;
-  unanswered: number;
   percent: number;
   avgTime: string | null;
+  /** Position in the list: picks the bar color. */
+  index: number;
+  /** Exam pass mark, drawn as a tick on the bar; null = none. */
+  passingScore: number | null;
 };
+
+/** Bar colors cycle through the series palette (green/red stay for correct/wrong). */
+const BAR_COLORS = ['bg-chart-1', 'bg-chart-3', 'bg-chart-2', 'bg-chart-5', 'bg-chart-4'] as const;
 
 // List item: primitive props only, no data fetching.
 export function DomainRow({
   name,
   total,
   correct,
-  wrong,
-  unanswered,
   percent,
   avgTime,
+  index,
+  passingScore,
 }: DomainRowProps) {
   const { t } = useTranslation();
+  const isBelowPass = passingScore !== null && percent < passingScore;
 
   return (
     <View className="gap-1.5 pb-4">
@@ -31,22 +37,33 @@ export function DomainRow({
         <Text weight="medium" className="flex-1" numberOfLines={1}>
           {name}
         </Text>
-        <Text type="body-sm" color="muted">
-          {t('reports.domainTally', { correct, total, percent })}
+        <Text
+          type="body-sm"
+          weight="semibold"
+          className={isBelowPass ? 'text-warning-soft-foreground' : 'text-foreground'}
+        >
+          {`${percent}%`}
         </Text>
       </View>
-      <StackedBar
-        segments={[
-          { key: 'correct', value: correct, className: 'bg-success' },
-          { key: 'wrong', value: wrong, className: 'bg-danger' },
-          { key: 'unanswered', value: unanswered, className: 'bg-muted' },
-        ]}
-      />
-      {avgTime === null ? null : (
-        <Text type="body-xs" color="muted">
-          {t('reports.domainTime', { time: avgTime })}
-        </Text>
-      )}
+      <View className="h-2.5 justify-center">
+        <View className="h-2.5 overflow-hidden rounded-full bg-surface-secondary">
+          <View
+            className={`h-full rounded-full ${BAR_COLORS[index % BAR_COLORS.length]}`}
+            style={{ width: `${percent}%` }}
+          />
+        </View>
+        {passingScore === null ? null : (
+          <View
+            className="absolute h-4 w-0.5 rounded-full bg-foreground"
+            style={{ left: `${passingScore}%` }}
+          />
+        )}
+      </View>
+      <Text type="body-xs" color="muted">
+        {avgTime === null
+          ? t('reports.domainCount', { correct, total })
+          : `${t('reports.domainCount', { correct, total })} · ${t('reports.domainTime', { time: avgTime })}`}
+      </Text>
     </View>
   );
 }
@@ -80,7 +97,7 @@ export function ExamCompareRow({
   const colors = useOutcomeColors();
 
   return (
-    <Card className="mb-3 flex-row items-center gap-3">
+    <Card className="mb-3 flex-row items-center gap-3 border border-border">
       <View className="flex-1 gap-1">
         <View className="flex-row items-center gap-2">
           <View className="size-3 rounded-full" style={{ backgroundColor: color }} />

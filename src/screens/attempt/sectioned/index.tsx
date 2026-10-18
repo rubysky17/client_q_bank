@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { activeSection } from '@/attempt-engine/reducer';
-import { LoadingView, PressableFeedback, Text, useThemeColor } from '@/components/ui';
+import { IconButton, LoadingView, Text, useThemeColor } from '@/components/ui';
 import {
   dispatchAttempt,
   getSession,
@@ -15,6 +15,7 @@ import {
 } from '@/stores/attempt-sessions';
 import { formatClockMs } from '@/utils/format-duration';
 
+import { AttemptTopBar } from '../attempt-top-bar';
 import { BreakScreen } from './break-screen';
 import { FinishScreen } from './finish-screen';
 import { PauseOverlay } from './pause-overlay';
@@ -75,18 +76,20 @@ export function SectionedAttemptScreen({ id }: SectionedAttemptScreenProps) {
 
   return (
     <View className="flex-1">
-      <Stack.Screen
-        options={{
-          title: section ? sectionTitle(section.order) : state.examTitle,
-          headerRight: () =>
-            working ? (
-              <HeaderClock
-                attemptId={id}
-                isRunning={isRunning}
-                onPause={() => withSession(id, (s) => s.pause())}
-              />
-            ) : null,
-        }}
+      {/* The v2 top bar replaces the native header. */}
+      <Stack.Screen options={{ headerShown: false }} />
+      <AttemptTopBar
+        title={working && section ? sectionTitle(section.order) : state.examTitle}
+        subtitle={working ? state.examTitle : undefined}
+        accessory={
+          working ? (
+            <HeaderClock
+              attemptId={id}
+              isRunning={isRunning}
+              onPause={() => withSession(id, (s) => s.pause())}
+            />
+          ) : null
+        }
       />
       {body}
       {working && !isRunning ? (
@@ -110,30 +113,35 @@ function HeaderClock({ attemptId, isRunning, onPause }: HeaderClockProps) {
   const { t } = useTranslation();
   const remaining = useRemainingMs(attemptId);
   const [warning, danger, foreground] = useThemeColor(['warning', 'danger', 'foreground']);
-  const tone =
+  const level =
     remaining !== null && remaining <= 60_000
-      ? danger
+      ? 'danger'
       : remaining !== null && remaining <= 5 * 60_000
-        ? warning
-        : foreground;
+        ? 'warning'
+        : 'normal';
+  const tone = level === 'danger' ? danger : level === 'warning' ? warning : foreground;
+  // Literal class names so Tailwind generates them.
+  const pill =
+    level === 'danger'
+      ? 'bg-danger-soft'
+      : level === 'warning'
+        ? 'bg-warning-soft'
+        : 'bg-surface-secondary';
 
   return (
-    <View className="flex-row items-center gap-3">
-      <View className="flex-row items-center gap-1">
-        <Ionicons name="time-outline" size={18} color={tone} />
-        <Text weight="semibold" style={{ color: tone, fontVariant: ['tabular-nums'] }}>
+    <View className="flex-row items-center gap-2">
+      <View className={`flex-row items-center gap-1.5 rounded-full px-3 py-2 ${pill}`}>
+        <Ionicons name="timer-outline" size={16} color={tone} />
+        <Text
+          type="body-sm"
+          weight="semibold"
+          style={{ color: tone, fontVariant: ['tabular-nums'] }}
+        >
           {formatClockMs(remaining) ?? ''}
         </Text>
       </View>
       {isRunning ? (
-        <PressableFeedback
-          onPress={onPause}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel={t('sectioned.pause')}
-        >
-          <Ionicons name="pause-circle-outline" size={26} color={foreground} />
-        </PressableFeedback>
+        <IconButton icon="pause" onPress={onPause} accessibilityLabel={t('sectioned.pause')} />
       ) : null}
     </View>
   );

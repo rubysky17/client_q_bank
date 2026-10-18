@@ -1,7 +1,8 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Text, useThemeColor } from 'heroui-native';
+import { Text } from 'heroui-native';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
+
+import { IconTile } from './icon-tile';
 
 type EmptyViewProps = {
   message?: string;
@@ -9,12 +10,13 @@ type EmptyViewProps = {
 
 export function EmptyView({ message }: EmptyViewProps) {
   const { t } = useTranslation();
-  const mutedColor = useThemeColor('muted');
 
   return (
     <View className="items-center justify-center gap-3 p-10">
-      <Ionicons name="file-tray-outline" size={36} color={mutedColor} />
-      <Text color="muted">{message ?? t('common.empty')}</Text>
+      <IconTile tone="blue" icon="file-tray-outline" className="size-16 rounded-3xl" />
+      <Text color="muted" align="center">
+        {message ?? t('common.empty')}
+      </Text>
     </View>
   );
 }

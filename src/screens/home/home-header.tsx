@@ -2,28 +2,46 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { useMe } from '@/api/auth';
-import { Avatar, Skeleton, Text } from '@/components/ui';
+import { GradientView, Skeleton, Text } from '@/components/ui';
 
 import { ContinueCards } from './continue-cards';
+import { DailyGoalCard } from './daily-goal-card';
+import { HomeStats } from './home-stats';
 
 export function HomeHeader() {
   const { t } = useTranslation();
   const { data: me, isPending } = useMe();
 
   return (
-    <View className="gap-5 pb-4">
+    <View className="gap-4 pb-3">
       <View className="flex-row items-center gap-3">
-        <Avatar alt={me?.fullName ?? ''} size="md">
-          <Avatar.Fallback>{me?.fullName.charAt(0).toUpperCase() ?? ''}</Avatar.Fallback>
-        </Avatar>
+        <GradientView className="size-11 items-center justify-center rounded-full">
+          <Text weight="semibold" className="text-on-brand">
+            {me?.fullName.charAt(0).toUpperCase() ?? ''}
+          </Text>
+        </GradientView>
         {isPending ? (
-          <Skeleton className="h-5 w-40 rounded-md" />
+          <View className="flex-1 gap-1.5">
+            <Skeleton className="h-4 w-40 rounded-full" />
+            <Skeleton className="h-3 w-52 rounded-full" />
+          </View>
         ) : (
-          <Text type="h5">{t('home.greeting', { name: me?.fullName ?? '' })}</Text>
+          <View className="flex-1">
+            <Text type="h6" numberOfLines={1}>
+              {t('home.greeting', { name: me?.fullName ?? '' })}
+            </Text>
+            <Text type="body-xs" color="muted">
+              {t('home.subtitle')}
+            </Text>
+          </View>
         )}
       </View>
       <ContinueCards />
-      <Text type="h3">{t('home.title')}</Text>
+      <DailyGoalCard />
+      <HomeStats />
+      <View className="flex-row items-center justify-between pt-1">
+        <Text type="h6">{t('home.title')}</Text>
+      </View>
     </View>
   );
 }

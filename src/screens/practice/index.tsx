@@ -3,7 +3,6 @@ import { Stack } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { type BankFilters, type BankQuestion, useBankQuestions } from '@/api/question-bank';
 import {
@@ -16,7 +15,18 @@ import {
   QuestionStem,
   QuestionTags,
 } from '@/components/question';
-import { Button, ErrorView, LoadingView, Text, useThemeColor } from '@/components/ui';
+import {
+  ActionBar,
+  Card,
+  ErrorView,
+  GradientButton,
+  GradientView,
+  IconButton,
+  LoadingView,
+  Text,
+  useThemeColor,
+} from '@/components/ui';
+import { AttemptTopBar } from '@/screens/attempt/attempt-top-bar';
 import { optionLetter } from '@/utils/format-duration';
 
 /** Load the next page this many questions before the end of what is loaded. */
@@ -33,7 +43,7 @@ type PracticeScreenProps = {
  */
 export function PracticeScreen({ filters, start }: PracticeScreenProps) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const success = useThemeColor('success');
   const { data, error, isPending, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useBankQuestions(filters);
   const [index, setIndex] = useState(start);
@@ -70,17 +80,28 @@ export function PracticeScreen({ filters, start }: PracticeScreenProps) {
 
   return (
     <View className="flex-1">
-      <Stack.Screen
-        options={{
-          title: t('practice.progress', { current: index + 1, total: data.total }),
-          headerRight: () => (
-            <Text type="body-sm" weight="semibold" className="text-success">
+      {/* The v2 top bar replaces the native header. */}
+      <Stack.Screen options={{ headerShown: false }} />
+      <AttemptTopBar
+        title={t('practice.progress', { current: index + 1, total: data.total })}
+        subtitle={t('practice.title')}
+        accessory={
+          <View className="flex-row items-center gap-1 rounded-full bg-success-soft px-3 py-2">
+            <Ionicons name="checkmark-circle" size={14} color={success} />
+            <Text type="body-sm" weight="semibold" className="text-success-soft-foreground">
               {t('practice.score', { correct: correctCount, answered: results.length })}
             </Text>
-          ),
-        }}
+          </View>
+        }
       />
-      <ScrollView ref={scrollRef} contentContainerClassName="gap-4 p-4">
+      <View className="mx-4 mb-1 h-1.5 overflow-hidden rounded-full bg-surface-secondary">
+        <GradientView
+          direction="horizontal"
+          className="h-full rounded-full"
+          style={{ width: `${Math.round(((index + 1) / Math.max(data.total, 1)) * 100)}%` }}
+        />
+      </View>
+      <ScrollView ref={scrollRef} contentContainerClassName="gap-3 px-4 pt-2 pb-4">
         <PracticeQuestion
           key={question.id}
           question={question}
@@ -93,33 +114,28 @@ export function PracticeScreen({ filters, start }: PracticeScreenProps) {
           onCheck={() => setChecked({ ...checked, [question.id]: true })}
         />
       </ScrollView>
-      <View
-        className="gap-2 border-t border-separator bg-background px-4 pt-3"
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
-        {isLast && checked[question.id] ? (
-          <Text type="body-sm" color="muted" className="text-center">
-            {t('practice.finished')}
-          </Text>
-        ) : null}
-        <View className="flex-row gap-3">
-          <Button
-            variant="secondary"
-            className="flex-1"
-            isDisabled={index === 0}
-            onPress={() => go(index - 1)}
-          >
-            <Button.Label>{t('practice.prev')}</Button.Label>
-          </Button>
-          <Button
-            className="flex-1"
-            isDisabled={isLast || index + 1 >= loaded}
-            onPress={() => go(index + 1)}
-          >
-            <Button.Label>{t('practice.next')}</Button.Label>
-          </Button>
-        </View>
-      </View>
+      {isLast && checked[question.id] ? (
+        <Text type="body-sm" color="muted" className="px-4 pb-2 text-center">
+          {t('practice.finished')}
+        </Text>
+      ) : null}
+      <ActionBar>
+        <IconButton
+          icon="chevron-back"
+          size={48}
+          isDisabled={index === 0}
+          onPress={() => go(index - 1)}
+          accessibilityLabel={t('practice.prev')}
+        />
+        <GradientButton
+          className="flex-1"
+          icon="arrow-forward"
+          iconEnd
+          label={t('practice.next')}
+          isDisabled={isLast || index + 1 >= loaded}
+          onPress={() => go(index + 1)}
+        />
+      </ActionBar>
     </View>
   );
 }
@@ -155,19 +171,21 @@ function PracticeQuestion({
   const isRight = isChecked && isAnswerCorrect(key, answer);
 
   return (
-    <View className="gap-4">
-      <QuestionTags
-        label={`${question.examTitle} · ${question.sectionTitle} · ${t('question.number', {
-          n: question.sourceNumber ?? question.order,
-        })}`}
-        domain={question.domain?.name}
-        difficulty={question.difficulty}
-      />
-      <QuestionStem
-        caseStudy={question.caseStudy}
-        content={question.content}
-        media={question.media}
-      />
+    <View className="gap-3">
+      <Card className="gap-3 border border-border">
+        <QuestionTags
+          label={`${question.examTitle} · ${question.sectionTitle} · ${t('question.number', {
+            n: question.sourceNumber ?? question.order,
+          })}`}
+          domain={question.domain?.name}
+          difficulty={question.difficulty}
+        />
+        <QuestionStem
+          caseStudy={question.caseStudy}
+          content={question.content}
+          media={question.media}
+        />
+      </Card>
       <AnswerView
         input={input}
         answer={answer}
@@ -186,7 +204,10 @@ function PracticeQuestion({
             size={22}
             color={isRight ? success : danger}
           />
-          <Text weight="semibold" className={isRight ? 'text-success' : 'text-danger'}>
+          <Text
+            weight="semibold"
+            className={`flex-1 ${isRight ? 'text-success-soft-foreground' : 'text-danger-soft-foreground'}`}
+          >
             {isRight
               ? t('practice.correct')
               : input.type === 'DRAG_DROP'
@@ -195,9 +216,12 @@ function PracticeQuestion({
           </Text>
         </View>
       ) : input.type === 'SINGLE_CHOICE' ? null : (
-        <Button isDisabled={!isAnswerComplete(input, answer)} onPress={onCheck}>
-          <Button.Label>{t('practice.check')}</Button.Label>
-        </Button>
+        <GradientButton
+          icon="checkmark-done"
+          label={t('practice.check')}
+          isDisabled={!isAnswerComplete(input, answer)}
+          onPress={onCheck}
+        />
       )}
 
       {isChecked ? <Explanation explanation={question.explanation} media={question.media} /> : null}

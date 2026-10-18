@@ -12,7 +12,21 @@ import {
   useBankFacets,
   useBankQuestions,
 } from '@/api/question-bank';
-import { Button, Chip, EmptyView, ErrorView, LoadingView, Spinner, Text } from '@/components/ui';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useCSSVariable } from 'uniwind';
+
+import {
+  EmptyView,
+  ErrorView,
+  FilterPill,
+  GradientGlow,
+  GradientView,
+  LoadingView,
+  PressableFeedback,
+  Spinner,
+  Text,
+  toneFor,
+} from '@/components/ui';
 
 import { BankRow } from './bank-row';
 import { toParams } from './filters';
@@ -44,18 +58,17 @@ export function BankScreen() {
 
   const header = (
     <View className="gap-4 pb-4">
-      <Text type="h2">{t('bank.title')}</Text>
-      <FilterBar facets={facets} filters={filters} onChange={setFilters} />
-      <View className="flex-row items-center justify-between gap-3">
+      <View>
+        <Text type="h2">{t('bank.title')}</Text>
         <Text type="body-sm" color="muted">
-          {data ? t('bank.count', { count: data.total }) : ' '}
+          {t('bank.subtitle')}
         </Text>
-        {data && data.total > 0 ? (
-          <Button size="sm" onPress={() => practice(0)}>
-            <Button.Label>{t('bank.practice')}</Button.Label>
-          </Button>
-        ) : null}
       </View>
+      <PracticeCard
+        count={data?.total ?? null}
+        onPress={data && data.total > 0 ? () => practice(0) : undefined}
+      />
+      <FilterBar facets={facets} filters={filters} onChange={setFilters} />
     </View>
   );
 
@@ -66,6 +79,7 @@ export function BankScreen() {
       renderItem={({ item, index }) => (
         <BankRow
           index={index}
+          tone={toneFor(item.domain?.id ?? item.examTitle)}
           label={`${item.examTitle} · ${item.sectionTitle} · ${t('question.number', {
             n: item.sourceNumber ?? item.order,
           })}`}
@@ -164,17 +178,12 @@ function ChipRow({ options, value, allLabel, onSelect }: ChipRowProps) {
       {choices.map((choice) => {
         const isSelected = choice.value === value;
         return (
-          <Chip
+          <FilterPill
             key={choice.value ?? 'all'}
-            size="md"
-            variant={isSelected ? 'primary' : 'soft'}
-            color={isSelected ? 'accent' : 'default'}
-            accessibilityRole="button"
-            accessibilityState={{ selected: isSelected }}
+            label={choice.label}
+            isSelected={isSelected}
             onPress={() => onSelect(choice.value)}
-          >
-            <Chip.Label>{choice.label}</Chip.Label>
-          </Chip>
+          />
         );
       })}
     </ScrollView>
@@ -183,4 +192,55 @@ function ChipRow({ options, value, allLabel, onSelect }: ChipRowProps) {
 
 function Gap() {
   return <View className="h-3" />;
+}
+
+type PracticeCardProps = {
+  /** Questions matching the filters; null while loading. */
+  count: number | null;
+  /** Undefined when there is nothing to practice. */
+  onPress?: () => void;
+};
+
+/** Gradient call to action: practice the filtered questions with explanations. */
+function PracticeCard({ count, onPress }: PracticeCardProps) {
+  const { t } = useTranslation();
+  const [onBrand, brandEnd] = useCSSVariable(['--color-on-brand', '--color-brand-end']);
+
+  return (
+    <GradientView className="gap-3 rounded-3xl p-5">
+      <GradientGlow className="-top-16 -right-10 size-44" />
+      <View className="flex-row items-center gap-1 self-start rounded-full bg-on-brand-subtle px-2 py-1">
+        <Ionicons
+          name="sparkles"
+          size={12}
+          color={typeof onBrand === 'string' ? onBrand : undefined}
+        />
+        <Text type="body-xs" weight="semibold" className="text-on-brand">
+          {t('bank.eyebrow')}
+        </Text>
+      </View>
+      <Text type="h4" className="text-on-brand">
+        {count === null ? ' ' : t('bank.count', { count })}
+      </Text>
+      <Text type="body-sm" className="text-on-brand-muted">
+        {t('bank.cardHint')}
+      </Text>
+      {onPress ? (
+        <PressableFeedback
+          onPress={onPress}
+          accessibilityRole="button"
+          className="h-11 flex-row items-center gap-2 self-start rounded-full bg-on-brand px-5"
+        >
+          <Ionicons
+            name="play"
+            size={16}
+            color={typeof brandEnd === 'string' ? brandEnd : undefined}
+          />
+          <Text weight="medium" className="text-brand-end">
+            {t('bank.practice')}
+          </Text>
+        </PressableFeedback>
+      ) : null}
+    </GradientView>
+  );
 }

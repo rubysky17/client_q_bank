@@ -3,12 +3,18 @@ import { FlashList } from '@shopify/flash-list';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { isAnswered } from '@/attempt-engine/metrics';
 import { activeSection } from '@/attempt-engine/reducer';
 import type { SessionState } from '@/attempt-engine/types';
-import { Button, PressableFeedback, SegmentedControl, Text, useThemeColor } from '@/components/ui';
+import {
+  ActionBar,
+  GradientButton,
+  PressableFeedback,
+  SegmentedControl,
+  Text,
+  useThemeColor,
+} from '@/components/ui';
 import { type AttemptSnapshot, dispatchAttempt } from '@/stores/attempt-sessions';
 
 type Filter = 'ALL' | 'FLAGGED' | 'UNANSWERED';
@@ -25,7 +31,6 @@ type SectionReviewProps = {
  */
 export function SectionReview({ state, snapshot, sectionTitle }: SectionReviewProps) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const [filter, setFilter] = useState<Filter>('ALL');
   const section = activeSection(state);
   if (!section) return null;
@@ -72,7 +77,7 @@ export function SectionReview({ state, snapshot, sectionTitle }: SectionReviewPr
   return (
     <View className="flex-1">
       <View className="gap-3 px-4 pt-4">
-        <Text type="h4">{t('sectioned.reviewTitle', { title: sectionTitle(section.order) })}</Text>
+        <Text type="h5">{t('sectioned.reviewTitle', { title: sectionTitle(section.order) })}</Text>
         <Text type="body-sm" color="muted">
           {t('sectioned.reviewSummary', {
             answered: items.length - unansweredCount,
@@ -113,18 +118,18 @@ export function SectionReview({ state, snapshot, sectionTitle }: SectionReviewPr
         }
         contentContainerStyle={{ padding: 12 }}
       />
-      <View
-        className="border-t border-separator bg-background px-4 pt-3"
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
-        <Button onPress={confirmEnd}>
-          <Button.Label>
-            {hasNext
+      <ActionBar>
+        <GradientButton
+          className="flex-1"
+          icon={hasNext ? 'checkmark-done' : 'paper-plane-outline'}
+          label={
+            hasNext
               ? t('sectioned.endSectionNamed', { title: sectionTitle(section.order) })
-              : t('attempt.submit')}
-          </Button.Label>
-        </Button>
-      </View>
+              : t('attempt.submit')
+          }
+          onPress={confirmEnd}
+        />
+      </ActionBar>
     </View>
   );
 }
@@ -145,15 +150,26 @@ function ReviewCell({ id, number, answered, flagged, onPress }: ReviewCellProps)
       <PressableFeedback
         onPress={() => onPress(id)}
         accessibilityRole="button"
-        className={`aspect-square items-center justify-center rounded-xl border-2 ${
+        className={`aspect-square items-center justify-center rounded-2xl border ${
           flagged
-            ? 'border-warning'
+            ? 'border-warning bg-warning-soft'
             : answered
-              ? 'border-accent bg-accent-soft'
+              ? 'border-transparent bg-accent-soft'
               : 'border-border bg-surface'
         }`}
       >
-        <Text weight="semibold">{number}</Text>
+        <Text
+          weight="semibold"
+          className={
+            flagged
+              ? 'text-warning-soft-foreground'
+              : answered
+                ? 'text-accent-soft-foreground'
+                : 'text-muted'
+          }
+        >
+          {number}
+        </Text>
         {flagged ? (
           <View className="absolute top-1 right-1">
             <Ionicons name="flag" size={12} color={warning} />

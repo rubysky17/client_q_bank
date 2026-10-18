@@ -2,7 +2,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { isAnswered } from '@/attempt-engine/metrics';
 import { activeSection } from '@/attempt-engine/reducer';
@@ -16,7 +15,16 @@ import {
   QuestionTags,
   useQuestionLabel,
 } from '@/components/question';
-import { Button, PressableFeedback, Text, useThemeColor } from '@/components/ui';
+import {
+  ActionBar,
+  Card,
+  GradientButton,
+  GradientView,
+  IconButton,
+  PressableFeedback,
+  Text,
+  useThemeColor,
+} from '@/components/ui';
 import { type AttemptSnapshot, dispatchAttempt } from '@/stores/attempt-sessions';
 
 import { QuestionStrip } from '../question-strip';
@@ -30,7 +38,7 @@ type QuestionScreenProps = {
 /** The running section, one question at a time. Only this section's questions can be reached. */
 export function QuestionScreen({ state, snapshot }: QuestionScreenProps) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
+  const [muted, warningSoftForeground] = useThemeColor(['muted', 'warning-soft-foreground']);
   const section = activeSection(state);
   const questions = snapshot.questions.filter((q) => q.sectionOrder === section?.order);
   const index = Math.max(
@@ -58,15 +66,35 @@ export function QuestionScreen({ state, snapshot }: QuestionScreenProps) {
     if (target) dispatchAttempt(attemptId, { type: 'QUESTION_VIEW', attemptQuestionId: target.id });
   };
 
+  const flagged = trace?.flagged ?? false;
+  const toggleFlag = () =>
+    dispatchAttempt(attemptId, {
+      type: 'FLAG_SET',
+      attemptQuestionId: current.id,
+      payload: { flagged: !flagged },
+    });
+
   return (
     <View className="flex-1">
-      <View className="flex-row items-center justify-between px-4 pt-3">
-        <Text type="body-sm" weight="medium">
-          {t('attempt.questionOf', { current: index + 1, total: questions.length })}
-        </Text>
-        <Text type="body-sm" color="muted">
-          {t('attempt.answered', { answered: answeredCount, total: questions.length })}
-        </Text>
+      <View className="gap-2 px-4 pt-1">
+        <View className="flex-row items-baseline justify-between">
+          <View className="flex-row items-baseline gap-1">
+            <Text type="h5">{t('sectioned.questionNumber', { current: index + 1 })}</Text>
+            <Text type="body-sm" color="muted">{`/ ${questions.length}`}</Text>
+          </View>
+          <Text type="body-sm" color="muted">
+            {t('attempt.answered', { answered: answeredCount, total: questions.length })}
+          </Text>
+        </View>
+        <View className="h-1.5 overflow-hidden rounded-full bg-surface-secondary">
+          <GradientView
+            direction="horizontal"
+            className="h-full rounded-full"
+            style={{
+              width: `${Math.round((answeredCount / Math.max(questions.length, 1)) * 100)}%`,
+            }}
+          />
+        </View>
       </View>
       <View className="h-14">
         <QuestionStrip
@@ -87,34 +115,54 @@ export function QuestionScreen({ state, snapshot }: QuestionScreenProps) {
         response={trace?.response ?? null}
         eliminated={trace?.eliminated ?? []}
         confidence={trace?.confidence ?? null}
-        flagged={trace?.flagged ?? false}
       />
 
-      <View
-        className="flex-row gap-3 border-t border-separator bg-background px-4 pt-3"
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
-        <Button
-          variant="secondary"
-          className="flex-1"
+      <ActionBar>
+        <IconButton
+          icon="chevron-back"
+          size={48}
           isDisabled={index === 0}
           onPress={() => go(index - 1)}
+          accessibilityLabel={t('attempt.prev')}
+        />
+        <PressableFeedback
+          onPress={toggleFlag}
+          accessibilityRole="button"
+          accessibilityState={{ checked: flagged }}
+          accessibilityLabel={flagged ? t('attempt.flagged') : t('attempt.flag')}
+          className={`h-12 flex-row items-center gap-1.5 rounded-3xl px-4 ${
+            flagged ? 'bg-warning-soft' : 'bg-surface-secondary'
+          }`}
         >
-          <Button.Label>{t('attempt.prev')}</Button.Label>
-        </Button>
-        {isLast ? (
-          <Button
-            className="flex-1"
-            onPress={() => dispatchAttempt(attemptId, { type: 'SECTION_REVIEW_OPEN' })}
+          <Ionicons
+            name={flagged ? 'flag' : 'flag-outline'}
+            size={16}
+            color={flagged ? warningSoftForeground : muted}
+          />
+          <Text
+            weight="medium"
+            className={flagged ? 'text-warning-soft-foreground' : 'text-default-foreground'}
           >
-            <Button.Label>{t('sectioned.reviewSection')}</Button.Label>
-          </Button>
+            {t('sectioned.flagShort')}
+          </Text>
+        </PressableFeedback>
+        {isLast ? (
+          <GradientButton
+            className="flex-1"
+            label={t('sectioned.reviewSection')}
+            icon="list"
+            onPress={() => dispatchAttempt(attemptId, { type: 'SECTION_REVIEW_OPEN' })}
+          />
         ) : (
-          <Button className="flex-1" onPress={() => go(index + 1)}>
-            <Button.Label>{t('attempt.next')}</Button.Label>
-          </Button>
+          <GradientButton
+            className="flex-1"
+            label={t('attempt.next')}
+            icon="arrow-forward"
+            iconEnd
+            onPress={() => go(index + 1)}
+          />
         )}
-      </View>
+      </ActionBar>
     </View>
   );
 }
@@ -125,7 +173,6 @@ type QuestionBodyProps = {
   response: unknown;
   eliminated: string[];
   confidence: Confidence | null;
-  flagged: boolean;
 };
 
 function QuestionBody({
@@ -134,10 +181,8 @@ function QuestionBody({
   response,
   eliminated,
   confidence,
-  flagged,
 }: QuestionBodyProps) {
   const { t } = useTranslation();
-  const [warning, muted] = useThemeColor(['warning', 'muted']);
   const label = useQuestionLabel();
   const input = parseInput(question.type, question.data);
   const answer = parseAnswer(question.type, response);
@@ -177,32 +222,25 @@ function QuestionBody({
   };
 
   return (
-    <ScrollView contentContainerClassName="gap-4 p-4" keyboardShouldPersistTaps="handled">
-      <View className="flex-row items-center justify-between gap-2">
-        <QuestionTags label={label(question.sectionTitle, question.sourceNumber, question.order)} />
-        <PressableFeedback
-          onPress={() => record('FLAG_SET', { flagged: !flagged })}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityState={{ checked: flagged }}
-          accessibilityLabel={flagged ? t('attempt.flagged') : t('attempt.flag')}
-          className="flex-row items-center gap-1"
-        >
-          <Ionicons
-            name={flagged ? 'flag' : 'flag-outline'}
-            size={20}
-            color={flagged ? warning : muted}
+    <ScrollView
+      contentContainerClassName="gap-3 px-4 pt-1 pb-4"
+      keyboardShouldPersistTaps="handled"
+    >
+      <Card className="gap-3 border border-border">
+        <View className="flex-row items-center justify-between gap-2">
+          <QuestionTags
+            label={label(question.sectionTitle, question.sourceNumber, question.order)}
           />
-          <Text type="body-sm" className={flagged ? 'text-warning' : 'text-muted'}>
-            {flagged ? t('attempt.flagged') : t('sectioned.flagShort')}
+          <Text type="body-xs" weight="medium" color="muted">
+            {t('attempt.points', { count: question.points })}
           </Text>
-        </PressableFeedback>
-      </View>
-      <QuestionStem
-        caseStudy={question.caseStudy}
-        content={question.content}
-        media={question.media}
-      />
+        </View>
+        <QuestionStem
+          caseStudy={question.caseStudy}
+          content={question.content}
+          media={question.media}
+        />
+      </Card>
       {input ? (
         <AnswerView
           input={input}

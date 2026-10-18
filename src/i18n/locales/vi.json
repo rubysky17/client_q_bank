@@ -4,7 +4,8 @@
     "loading": "Đang tải…",
     "empty": "Chưa có dữ liệu",
     "goHome": "Về trang chủ",
-    "cancel": "Huỷ"
+    "cancel": "Huỷ",
+    "back": "Quay lại"
   },
   "tabs": {
     "home": "Đề thi",
@@ -38,7 +39,9 @@
       "fullNameRequired": "Vui lòng nhập họ và tên",
       "passwordMin": "Mật khẩu tối thiểu {{count}} ký tự",
       "passwordMismatch": "Mật khẩu nhập lại không khớp"
-    }
+    },
+    "welcomeBack": "Chào mừng trở lại",
+    "welcomeSubtitle": "Đăng nhập để tiếp tục luyện đề."
   },
   "home": {
     "greeting": "Xin chào, {{name}}",
@@ -48,7 +51,19 @@
     "untimed": "Không giới hạn",
     "passMark": "Đạt {{percent}}%",
     "continueTitle": "Đang làm dở",
-    "continueDetail": "{{title}} · {{section}} · {{answered}}/{{total}} câu"
+    "continueDetail": "{{title}} · {{section}} · {{answered}}/{{total}} câu",
+    "subtitle": "Cùng duy trì việc luyện đề nhé",
+    "inProgress": "Đang làm",
+    "continueMeta": "{{section}} · đã trả lời {{answered}}/{{total}}",
+    "resume": "Làm tiếp",
+    "streak": "Ngày liên tiếp",
+    "avgCorrect": "Tỉ lệ đúng TB",
+    "finished": "Lần hoàn thành",
+    "notTaken": "Chưa làm",
+    "goalTitle": "Mục tiêu hôm nay",
+    "goalProgress": "{{done}}/{{goal}} câu",
+    "goalLeft": "Còn {{count}} câu nữa, cố lên!",
+    "goalDone": "Đã đạt mục tiêu, tuyệt vời!"
   },
   "exam": {
     "title": "Chi tiết đề",
@@ -76,7 +91,10 @@
     "startOver": "Làm mới",
     "startOverTitle": "Làm lại từ đầu?",
     "startOverMessage": "Bài đang làm sẽ được lưu vào lịch sử với trạng thái Chưa hoàn thành, các câu đã trả lời vẫn được tính trong báo cáo.",
-    "needOnline": "Cần kết nối mạng để bắt đầu đề mới. Bài đang làm vẫn được giữ trên máy."
+    "needOnline": "Cần kết nối mạng để bắt đầu đề mới. Bài đang làm vẫn được giữ trên máy.",
+    "practiceShort": "Luyện tập",
+    "yourProgress": "Tiến độ của bạn",
+    "avgCorrect": "Đúng trung bình {{percent}}%"
   },
   "attempt": {
     "title": "Làm bài",
@@ -108,20 +126,47 @@
     "byDifficulty": "Theo độ khó",
     "tally": "{{correct}}/{{total}} câu đúng",
     "review": "Xem lại đáp án",
-    "done": "Về danh sách đề"
+    "done": "Về danh sách đề",
+    "scoreOf": "Điểm {{score}}/{{max}}",
+    "wrong": "Sai",
+    "skipped": "Bỏ trống",
+    "perQuestion": "Mỗi câu"
   },
   "review": {
     "title": "Xem lại đáp án",
     "correct": "Đúng",
     "wrong": "Sai",
     "notAnswered": "Chưa trả lời",
-    "explanation": "Giải thích"
+    "explanation": "Giải thích",
+    "filterAndMap": "Lọc & danh sách câu",
+    "list": "Danh sách",
+    "position": "{{current}}/{{total}}",
+    "outcome": "Kết quả",
+    "difficulty": "Độ khó",
+    "domain": "Lĩnh vực",
+    "section": "Phần thi",
+    "flagged": "Đã đánh dấu",
+    "noDomain": "Không có lĩnh vực",
+    "clearFilters": "Xóa bộ lọc",
+    "removeFilter": "Bỏ lọc {{label}}",
+    "noMatch": "Không có câu nào khớp bộ lọc",
+    "questions": "Câu hỏi ({{shown}}/{{total}})"
   },
   "history": {
     "title": "Lịch sử làm bài",
     "empty": "Bạn chưa làm bài nào",
     "score": "{{score}}/{{max}} điểm",
-    "progress": "Đã làm {{answered}}/{{total}} câu"
+    "progress": "Đã làm {{answered}}/{{total}} câu",
+    "passed": "Đạt",
+    "failed": "Chưa đạt",
+    "thisWeek": "Tuần này",
+    "earlier": "Trước đó",
+    "filter": {
+      "all": "Tất cả",
+      "passed": "Đạt",
+      "failed": "Chưa đạt",
+      "inProgress": "Đang làm"
+    }
   },
   "reports": {
     "title": "Báo cáo",
@@ -160,7 +205,26 @@
     "overview": "Từng đề",
     "examStats": "TB {{percent}}% · {{count}} lần làm",
     "notCovered": "Không có câu",
-    "notEnough": "Chọn ít nhất 2 đề để so sánh"
+    "notEnough": "Chọn ít nhất 2 đề để so sánh",
+    "subtitle": "Kết quả của bạn theo từng đề",
+    "sinceFirst": "{{delta}}% so với lần đầu",
+    "answered": "Câu đã trả lời",
+    "outcomesSub": "{{count}} câu qua tất cả các lần làm",
+    "trendSub": "% câu đúng qua từng lần làm",
+    "insights": "Nhận định",
+    "strongest": "Mạnh nhất: {{name}}",
+    "strongestDetail": "{{percent}}% câu đúng · tiếp tục phát huy",
+    "weakest": "Cần tập trung: {{name}}",
+    "weakestDetail": "{{percent}}% câu đúng",
+    "slowest": "Chậm nhất: {{name}}",
+    "slowestDetail": "Trung bình {{time}} mỗi câu",
+    "activity": "Hoạt động học tập",
+    "activitySub": "Số lần làm mỗi ngày · 5 tuần gần nhất · mọi đề",
+    "activitySummary": "{{count}} lần làm trong 5 tuần gần nhất",
+    "streak": "Chuỗi {{count}} ngày",
+    "less": "Ít",
+    "more": "Nhiều",
+    "domainCount": "{{correct}}/{{total}} câu đúng"
   },
   "status": {
     "IN_PROGRESS": "Đang làm",
@@ -195,7 +259,41 @@
       "USER": "Học viên",
       "HOST": "Người soạn đề",
       "ADMIN": "Quản trị"
-    }
+    },
+    "statAttempts": "Hoàn thành",
+    "statAvg": "Đúng TB",
+    "statStreak": "Ngày liên tiếp",
+    "editProfile": "Sửa hồ sơ",
+    "changePassword": "Đổi mật khẩu",
+    "changePasswordHint": "Các thiết bị khác sẽ bị đăng xuất",
+    "study": "Học tập",
+    "dailyGoal": "Mục tiêu mỗi ngày",
+    "dailyGoalOff": "Chưa đặt mục tiêu",
+    "dailyGoalOn": "{{count}} câu mỗi ngày",
+    "goalOff": "Tắt",
+    "reminder": "Nhắc lịch học",
+    "reminderOn": "Hằng ngày lúc {{time}}",
+    "reminderOff": "Đang tắt",
+    "sync": "Bài làm offline",
+    "pendingSync": "{{count}} bài đang chờ đồng bộ",
+    "allSynced": "Đã đồng bộ hết",
+    "lastSynced": "Đồng bộ gần nhất {{time}}",
+    "neverSynced": "Chưa đồng bộ trên máy này",
+    "syncNow": "Đồng bộ ngay",
+    "syncDone": "Vừa đồng bộ xong",
+    "syncOffline": "Không có mạng: sẽ tự đồng bộ khi có mạng",
+    "security": "Bảo mật",
+    "logoutAll": "Đăng xuất mọi thiết bị",
+    "logoutAllHint": "Kết thúc mọi phiên, kể cả máy này",
+    "logoutAllTitle": "Đăng xuất mọi thiết bị?",
+    "logoutAllMessage": "Bạn sẽ phải đăng nhập lại trên tất cả thiết bị.",
+    "deleteAccount": "Xoá tài khoản",
+    "deleteAccountHint": "Xoá vĩnh viễn bài làm của bạn",
+    "about": "Thông tin",
+    "help": "Trợ giúp & góp ý",
+    "helpSubject": "Góp ý Q Bank",
+    "privacy": "Chính sách bảo mật",
+    "reminderUnavailable": "Cần cài bản app mới nhất"
   },
   "errors": {
     "network": "Không có kết nối mạng. Kiểm tra Internet rồi thử lại.",
@@ -236,7 +334,10 @@
     "count": "{{count}} câu hỏi",
     "practice": "Luyện các câu này",
     "empty": "Không có câu hỏi nào khớp bộ lọc",
-    "clear": "Xoá bộ lọc"
+    "clear": "Xoá bộ lọc",
+    "subtitle": "Luyện bất kỳ câu nào, kèm lời giải",
+    "eyebrow": "Chế độ luyện tập",
+    "cardHint": "Kiểm tra ngay từng câu và đọc lời giải."
   },
   "practice": {
     "title": "Luyện tập",
@@ -301,7 +402,10 @@
     "uploading": "Đang nộp bài…",
     "savedOfflineSubmit": "Bài đã được nộp trên máy",
     "savedOffline": "Đã lưu trên máy",
-    "savedOfflineHint": "Không có kết nối mạng. Bài làm được giữ an toàn trên máy và sẽ tự gửi lên khi có mạng."
+    "savedOfflineHint": "Không có kết nối mạng. Bài làm được giữ an toàn trên máy và sẽ tự gửi lên khi có mạng.",
+    "questionNumber": "Câu {{current}}",
+    "introEyebrow": "{{count}} phần tính giờ riêng",
+    "rulesTitle": "Cách làm bài"
   },
   "insights": {
     "title": "Phân tích quyết định",
@@ -329,5 +433,36 @@
     "slowest": "Câu tốn thời gian nhất: {{items}}",
     "flagsTitle": "Câu đánh cờ",
     "flagsDetail": "{{total}} câu từng đánh cờ: trả lời {{answered}}, đúng {{correct}}."
+  },
+  "splash": {
+    "tagline": "Luyện đề thông minh. Tự tin vượt qua."
+  },
+  "reminder": {
+    "title": "Đến giờ luyện đề rồi 📚",
+    "body": "Làm vài câu hôm nay để giữ chuỗi ngày học nhé.",
+    "channel": "Nhắc lịch học",
+    "deniedTitle": "Thông báo đang bị tắt",
+    "deniedMessage": "Hãy cho phép Q Bank gửi thông báo trong cài đặt hệ thống để nhận nhắc nhở.",
+    "openSettings": "Mở cài đặt"
+  },
+  "account": {
+    "profileTitle": "Sửa hồ sơ",
+    "profileIntro": "Tên hiển thị trên bài làm và báo cáo. Email: {{email}}",
+    "save": "Lưu",
+    "passwordTitle": "Đổi mật khẩu",
+    "passwordIntro": "Sau khi đổi, mọi thiết bị khác sẽ bị đăng xuất.",
+    "changePassword": "Đổi mật khẩu",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "samePassword": "Mật khẩu mới phải khác mật khẩu hiện tại",
+    "wrongPassword": "Mật khẩu không đúng",
+    "passwordChanged": "Đã đổi mật khẩu",
+    "passwordChangedHint": "Hãy dùng mật khẩu mới cho lần đăng nhập sau.",
+    "deleteTitle": "Xoá tài khoản",
+    "deleteIntro": "Thao tác này xoá vĩnh viễn tài khoản, bài làm và báo cáo của bạn. Không thể hoàn tác.",
+    "delete": "Xoá tài khoản của tôi",
+    "deleteConfirmTitle": "Xoá tài khoản?",
+    "deleteConfirmMessage": "Mọi dữ liệu sẽ bị xoá vĩnh viễn.",
+    "notDeletable": "Tài khoản người soạn đề và quản trị không thể tự xoá trong ứng dụng."
   }
 }

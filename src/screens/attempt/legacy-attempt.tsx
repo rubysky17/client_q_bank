@@ -3,7 +3,6 @@ import { Stack, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { clockOffsetMs } from '@/api/attempt-state';
 import { type AttemptQuestion, useAttempt, useSaveAnswer, useSubmitAttempt } from '@/api/attempts';
@@ -17,9 +16,21 @@ import {
   QuestionTags,
   useQuestionLabel,
 } from '@/components/question';
-import { Button, ErrorView, LoadingView, Spinner, Text, useThemeColor } from '@/components/ui';
+import {
+  ActionBar,
+  Card,
+  ErrorView,
+  GradientButton,
+  GradientView,
+  IconButton,
+  LoadingView,
+  PressableFeedback,
+  Text,
+  useThemeColor,
+} from '@/components/ui';
 import { formatClock } from '@/utils/format-duration';
 
+import { AttemptTopBar } from './attempt-top-bar';
 import { QuestionStrip } from './question-strip';
 import { useCountdown } from './use-countdown';
 import { useDwellTime } from './use-dwell-time';
@@ -35,7 +46,7 @@ type LegacyAttemptScreenProps = {
 export function LegacyAttemptScreen({ id }: LegacyAttemptScreenProps) {
   const { t } = useTranslation();
   const { replace } = useRouter();
-  const insets = useSafeAreaInsets();
+  const [muted, warningSoftForeground] = useThemeColor(['muted', 'warning-soft-foreground']);
   const { data: attempt, error, isPending, refetch, dataUpdatedAt } = useAttempt(id);
   const { mutate: saveAnswer, error: saveError } = useSaveAnswer(id);
   const { mutate: submit, isPending: isSubmitting, error: submitError } = useSubmitAttempt(id);
@@ -102,23 +113,35 @@ export function LegacyAttemptScreen({ id }: LegacyAttemptScreenProps) {
 
   return (
     <View className="flex-1">
-      <Stack.Screen
-        options={{
-          title: attempt.examTitle,
-          headerRight: () => (secondsLeft === null ? null : <TimerBadge seconds={secondsLeft} />),
-        }}
+      {/* The v2 top bar replaces the native header. */}
+      <Stack.Screen options={{ headerShown: false }} />
+      <AttemptTopBar
+        title={attempt.examTitle}
+        accessory={secondsLeft === null ? null : <TimerBadge seconds={secondsLeft} />}
       />
 
-      <View className="flex-row items-center justify-between px-4 pt-3">
-        <Text type="body-sm" weight="medium">
-          {t('attempt.questionOf', { current: index + 1, total: questions.length })}
-        </Text>
-        <Text type="body-sm" color="muted">
-          {t('attempt.answered', {
-            answered: attempt.answeredCount,
-            total: attempt.totalQuestions,
-          })}
-        </Text>
+      <View className="gap-2 px-4 pt-1">
+        <View className="flex-row items-baseline justify-between">
+          <View className="flex-row items-baseline gap-1">
+            <Text type="h5">{t('sectioned.questionNumber', { current: index + 1 })}</Text>
+            <Text type="body-sm" color="muted">{`/ ${questions.length}`}</Text>
+          </View>
+          <Text type="body-sm" color="muted">
+            {t('attempt.answered', {
+              answered: attempt.answeredCount,
+              total: attempt.totalQuestions,
+            })}
+          </Text>
+        </View>
+        <View className="h-1.5 overflow-hidden rounded-full bg-surface-secondary">
+          <GradientView
+            direction="horizontal"
+            className="h-full rounded-full"
+            style={{
+              width: `${Math.round((attempt.answeredCount / Math.max(attempt.totalQuestions, 1)) * 100)}%`,
+            }}
+          />
+        </View>
       </View>
       <View className="h-14">
         <QuestionStrip
@@ -136,39 +159,60 @@ export function LegacyAttemptScreen({ id }: LegacyAttemptScreenProps) {
         key={current.id}
         question={current}
         onAnswer={(answer) => change({ response: answer, timeSpentMs: takeDwell() })}
-        onToggleFlag={() => change({ flagged: !current.flagged })}
       />
 
-      <View
-        className="gap-2 border-t border-separator bg-background px-4 pt-3"
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
-        {actionError ? (
-          <Text type="body-sm" className="text-danger">
-            {describeError(actionError, t)}
-          </Text>
-        ) : null}
-        <View className="flex-row gap-3">
-          <Button
-            variant="secondary"
-            className="flex-1"
-            isDisabled={index === 0}
-            onPress={() => setIndex(index - 1)}
+      {actionError ? (
+        <Text type="body-sm" className="px-4 pb-2 text-danger">
+          {describeError(actionError, t)}
+        </Text>
+      ) : null}
+      <ActionBar>
+        <IconButton
+          icon="chevron-back"
+          size={48}
+          isDisabled={index === 0}
+          onPress={() => setIndex(index - 1)}
+          accessibilityLabel={t('attempt.prev')}
+        />
+        <PressableFeedback
+          onPress={() => change({ flagged: !current.flagged })}
+          accessibilityRole="button"
+          accessibilityState={{ checked: current.flagged }}
+          accessibilityLabel={current.flagged ? t('attempt.flagged') : t('attempt.flag')}
+          className={`h-12 flex-row items-center gap-1.5 rounded-3xl px-4 ${
+            current.flagged ? 'bg-warning-soft' : 'bg-surface-secondary'
+          }`}
+        >
+          <Ionicons
+            name={current.flagged ? 'flag' : 'flag-outline'}
+            size={16}
+            color={current.flagged ? warningSoftForeground : muted}
+          />
+          <Text
+            weight="medium"
+            className={current.flagged ? 'text-warning-soft-foreground' : 'text-default-foreground'}
           >
-            <Button.Label>{t('attempt.prev')}</Button.Label>
-          </Button>
-          {isLast ? (
-            <Button className="flex-1" isDisabled={isSubmitting} onPress={confirmSubmit}>
-              {isSubmitting ? <Spinner size="sm" /> : null}
-              <Button.Label>{t('attempt.submit')}</Button.Label>
-            </Button>
-          ) : (
-            <Button className="flex-1" onPress={() => setIndex(index + 1)}>
-              <Button.Label>{t('attempt.next')}</Button.Label>
-            </Button>
-          )}
-        </View>
-      </View>
+            {t('sectioned.flagShort')}
+          </Text>
+        </PressableFeedback>
+        {isLast ? (
+          <GradientButton
+            className="flex-1"
+            icon="paper-plane-outline"
+            label={t('attempt.submit')}
+            isLoading={isSubmitting}
+            onPress={confirmSubmit}
+          />
+        ) : (
+          <GradientButton
+            className="flex-1"
+            icon="arrow-forward"
+            iconEnd
+            label={t('attempt.next')}
+            onPress={() => setIndex(index + 1)}
+          />
+        )}
+      </ActionBar>
     </View>
   );
 }
@@ -176,29 +220,34 @@ export function LegacyAttemptScreen({ id }: LegacyAttemptScreenProps) {
 type QuestionBodyProps = {
   question: AttemptQuestion;
   onAnswer: (answer: Answer | null) => void;
-  onToggleFlag: () => void;
 };
 
-function QuestionBody({ question, onAnswer, onToggleFlag }: QuestionBodyProps) {
+function QuestionBody({ question, onAnswer }: QuestionBodyProps) {
   const { t } = useTranslation();
-  const [warning, muted] = useThemeColor(['warning', 'muted']);
   const label = useQuestionLabel();
   const input = parseInput(question.type, question.data);
   const answer = parseAnswer(question.type, question.response);
 
   return (
-    <ScrollView contentContainerClassName="gap-4 p-4" keyboardShouldPersistTaps="handled">
-      <View className="flex-row items-center justify-between gap-2">
-        <QuestionTags label={label(question.sectionTitle, question.sourceNumber, question.order)} />
-        <Text type="body-xs" color="muted">
-          {t('attempt.points', { count: question.points })}
-        </Text>
-      </View>
-      <QuestionStem
-        caseStudy={question.caseStudy}
-        content={question.content}
-        media={question.media}
-      />
+    <ScrollView
+      contentContainerClassName="gap-3 px-4 pt-1 pb-4"
+      keyboardShouldPersistTaps="handled"
+    >
+      <Card className="gap-3 border border-border">
+        <View className="flex-row items-center justify-between gap-2">
+          <QuestionTags
+            label={label(question.sectionTitle, question.sourceNumber, question.order)}
+          />
+          <Text type="body-xs" weight="medium" color="muted">
+            {t('attempt.points', { count: question.points })}
+          </Text>
+        </View>
+        <QuestionStem
+          caseStudy={question.caseStudy}
+          content={question.content}
+          media={question.media}
+        />
+      </Card>
       {input ? (
         <AnswerView input={input} answer={answer} onChange={onAnswer} />
       ) : (
@@ -206,26 +255,30 @@ function QuestionBody({ question, onAnswer, onToggleFlag }: QuestionBodyProps) {
           {t('attempt.unsupported')}
         </Text>
       )}
-      <Button variant="ghost" className="self-start" onPress={onToggleFlag}>
-        <Ionicons
-          name={question.flagged ? 'flag' : 'flag-outline'}
-          size={18}
-          color={question.flagged ? warning : muted}
-        />
-        <Button.Label>{question.flagged ? t('attempt.flagged') : t('attempt.flag')}</Button.Label>
-      </Button>
     </ScrollView>
   );
 }
 
 export function TimerBadge({ seconds }: { seconds: number }) {
-  const [warning, foreground] = useThemeColor(['warning', 'foreground']);
+  const [warningSoftForeground, foreground] = useThemeColor([
+    'warning-soft-foreground',
+    'foreground',
+  ]);
   const isLow = seconds <= 60;
 
   return (
-    <View className="flex-row items-center gap-1">
-      <Ionicons name="time-outline" size={18} color={isLow ? warning : foreground} />
-      <Text weight="semibold" className={isLow ? 'text-warning' : 'text-foreground'}>
+    <View
+      className={`flex-row items-center gap-1.5 rounded-full px-3 py-2 ${
+        isLow ? 'bg-warning-soft' : 'bg-surface-secondary'
+      }`}
+    >
+      <Ionicons name="timer-outline" size={16} color={isLow ? warningSoftForeground : foreground} />
+      <Text
+        type="body-sm"
+        weight="semibold"
+        className={isLow ? 'text-warning-soft-foreground' : 'text-foreground'}
+        style={{ fontVariant: ['tabular-nums'] }}
+      >
         {formatClock(seconds)}
       </Text>
     </View>

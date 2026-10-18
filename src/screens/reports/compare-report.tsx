@@ -77,7 +77,7 @@ export function CompareReport({ selection, header, onRefresh }: CompareReportPro
         );
       case 'heading':
         return (
-          <Text type="body-sm" weight="medium" color="muted" className="pt-2 pb-3">
+          <Text type="h6" className="pt-2 pb-3">
             {t(`reports.${row.title}`)}
           </Text>
         );

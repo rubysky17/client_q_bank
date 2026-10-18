@@ -19,7 +19,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: APP_ID,
     versionCode: 1,
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
+      backgroundColor: '#0485F7',
       foregroundImage: './assets/images/android-icon-foreground.png',
       backgroundImage: './assets/images/android-icon-background.png',
       monochromeImage: './assets/images/android-icon-monochrome.png',
@@ -35,17 +35,25 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-splash-screen',
       {
-        backgroundColor: '#ffffff',
+        // Brand gradient start: the in-app splash (components/app-splash.tsx) continues from it.
+        backgroundColor: '#0485F7',
         image: './assets/images/splash-icon.png',
-        imageWidth: 76,
-        dark: { backgroundColor: '#000000' },
+        imageWidth: 112,
+        dark: { backgroundColor: '#1F8FFF' },
       },
     ],
     'expo-localization',
+    // Daily study reminders (local notifications only, no push).
+    'expo-notifications',
     'expo-secure-store',
     [
       'expo-build-properties',
       {
+        ios: {
+          // Build Expo modules from source: the precompiled XCFrameworks are tied to the Swift
+          // version they were built with and fail on a newer Xcode.
+          usePrecompiledModules: false,
+        },
         android: {
           // arm64 covers real devices and Apple Silicon emulators; x86_64 covers Intel emulators.
           // Building 2 ABIs instead of 4 roughly halves native build time.
@@ -55,6 +63,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     './plugins/with-android-release-signing',
   ],
+  extra: {
+    /** Help & feedback in Settings opens a mail to this address; the row hides when empty. */
+    supportEmail: process.env.EXPO_PUBLIC_SUPPORT_EMAIL ?? '',
+  },
   experiments: {
     typedRoutes: true,
     reactCompiler: true,

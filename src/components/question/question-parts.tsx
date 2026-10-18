@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import type { CaseStudy, Difficulty, QuestionMedia as Media } from '@/api/attempts';
-import { Chip, Text } from '@/components/ui';
+import { Chip, IconTile, Text } from '@/components/ui';
 
 import { CaseStudyPanel } from './case-study-panel';
 import { Paragraphs } from './paragraphs';
@@ -75,10 +75,13 @@ export function Explanation({ explanation, media }: ExplanationProps) {
   if (!explanation && images.length === 0) return null;
 
   return (
-    <View className="gap-3 rounded-2xl bg-surface-secondary p-4">
-      <Text type="body-xs" weight="semibold" color="muted" className="uppercase">
-        {t('review.explanation')}
-      </Text>
+    <View className="gap-3 rounded-2xl border border-border bg-surface-secondary p-4">
+      <View className="flex-row items-center gap-2">
+        <IconTile tone="amber" icon="bulb-outline" size="sm" />
+        <Text type="body-sm" weight="semibold">
+          {t('review.explanation')}
+        </Text>
+      </View>
       {explanation ? <Paragraphs text={explanation} type="body-sm" /> : null}
       <QuestionMedia media={images} />
     </View>

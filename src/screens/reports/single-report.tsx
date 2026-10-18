@@ -1,14 +1,18 @@
 import { FlashList } from '@shopify/flash-list';
+import { useQuery } from '@tanstack/react-query';
 import { type ReactElement, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { catalogExamQueryOptions } from '@/api/catalog';
 import { type ExamReport, useExamReport } from '@/api/reports';
 import { ErrorView, Spinner, Text, useThemeColor } from '@/components/ui';
 import { formatClockMs } from '@/utils/format-duration';
 
-import { KpiCard, OutcomesCard, TrendCard } from './report-cards';
+import { ActivityCard } from './activity-card';
+import { InsightsCard, KpiCard, OutcomesCard, TrendCard } from './report-cards';
+import { ReportHero } from './report-hero';
 import { DomainRow } from './report-rows';
 import { type SingleRow, singleRows } from './rows';
 
@@ -26,6 +30,9 @@ export function SingleReport({ examId, header, onRefresh }: SingleReportProps) {
   const accent = useThemeColor('accent');
   const { data: report, error, isPending, isPlaceholderData, refetch } = useExamReport(examId);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  // For the pass-mark tick on the domain bars (usually cached from the exam screen).
+  const { data: exam } = useQuery(catalogExamQueryOptions(examId));
+  const passingScore = exam?.passingScore ?? null;
 
   const refresh = async () => {
     setIsRefreshing(true);
@@ -39,13 +46,19 @@ export function SingleReport({ examId, header, onRefresh }: SingleReportProps) {
   const renderRow = (row: SingleRow, data: ExamReport) => {
     const { summary } = data;
     switch (row.kind) {
+      case 'hero':
+        return (
+          <ReportHero
+            avgCorrectPercent={summary.avgCorrectPercent}
+            values={data.attempts.map((attempt) => attempt.correctPercent)}
+          />
+        );
       case 'kpis':
         return (
           <KpiCard
-            avgCorrectPercent={summary.avgCorrectPercent}
-            latestCorrectPercent={summary.latestCorrectPercent}
-            bestCorrectPercent={summary.bestCorrectPercent}
             attemptCount={summary.attemptCount}
+            answeredCount={summary.outcomes.correct + summary.outcomes.wrong}
+            bestCorrectPercent={summary.bestCorrectPercent}
             avgTime={formatClockMs(summary.avgTimePerAnswerMs)}
             isTimeEstimated={summary.timeSource === 'estimated' || summary.timeSource === 'mixed'}
           />
@@ -62,6 +75,7 @@ export function SingleReport({ examId, header, onRefresh }: SingleReportProps) {
         const values = data.attempts.map((attempt) => attempt.correctPercent);
         return (
           <TrendCard
+            area
             series={[{ key: data.examId, color: accent, values }]}
             accessibilityLabel={values
               .map((percent, index) => t('reports.attemptValue', { n: index + 1, percent }))
@@ -71,7 +85,7 @@ export function SingleReport({ examId, header, onRefresh }: SingleReportProps) {
       }
       case 'heading':
         return (
-          <Text type="body-sm" weight="medium" color="muted" className="pt-2 pb-3">
+          <Text type="h6" className="pt-2 pb-3">
             {t(`reports.${row.title}`)}
           </Text>
         );
@@ -81,12 +95,31 @@ export function SingleReport({ examId, header, onRefresh }: SingleReportProps) {
             name={row.domain.name ?? t('reports.noDomain')}
             total={row.domain.total}
             correct={row.domain.correct}
-            wrong={row.domain.wrong}
-            unanswered={row.domain.unanswered}
             percent={row.domain.correctPercent}
             avgTime={formatClockMs(row.domain.avgTimePerAnswerMs)}
+            index={row.index}
+            passingScore={passingScore}
           />
         );
+      case 'activity':
+        return <ActivityCard />;
+      case 'insights': {
+        const { strongest, weakest, slowest } = row.insights;
+        return (
+          <InsightsCard
+            strongest={{ name: strongest.name ?? '', percent: strongest.correctPercent }}
+            weakest={weakest ? { name: weakest.name ?? '', percent: weakest.correctPercent } : null}
+            slowest={
+              slowest
+                ? {
+                    name: slowest.name ?? '',
+                    time: formatClockMs(slowest.avgTimePerAnswerMs) ?? '',
+                  }
+                : null
+            }
+          />
+        );
+      }
     }
   };
 

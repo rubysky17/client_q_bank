@@ -1,10 +1,17 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { SessionState } from '@/attempt-engine/types';
-import { Button, Card, Text, useThemeColor } from '@/components/ui';
+import {
+  ActionBar,
+  Card,
+  GradientButton,
+  GradientGlow,
+  GradientView,
+  IconTile,
+  Text,
+  TONES,
+} from '@/components/ui';
 import { dispatchAttempt } from '@/stores/attempt-sessions';
 
 type SectionIntroProps = {
@@ -15,8 +22,6 @@ type SectionIntroProps = {
 /** Before the first section: the format and the rules, then "start". */
 export function SectionIntro({ state, sectionTitle }: SectionIntroProps) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const accent = useThemeColor('accent');
   const first = state.sections[0];
   const rules = [
     { icon: 'time-outline', text: t('sectioned.ruleClock') },
@@ -29,49 +34,65 @@ export function SectionIntro({ state, sectionTitle }: SectionIntroProps) {
 
   return (
     <View className="flex-1">
-      <ScrollView contentContainerClassName="gap-4 p-4">
-        <Text type="h3">{state.examTitle}</Text>
-        <Card className="gap-2">
-          {state.sections.map((section) => (
-            <View key={section.order} className="flex-row justify-between">
-              <Text>{sectionTitle(section.order)}</Text>
-              <Text color="muted">
-                {t('home.minutes', { count: Math.round(section.budgetMs / 60_000) })}
-              </Text>
-            </View>
-          ))}
+      <ScrollView contentContainerClassName="gap-4 px-4 pt-2 pb-4">
+        <GradientView className="gap-3 rounded-3xl p-5">
+          <GradientGlow className="-top-16 -right-12 size-48" />
+          <Text type="body-sm" weight="medium" className="text-on-brand-muted">
+            {t('sectioned.introEyebrow', { count: state.sections.length })}
+          </Text>
+          <View className="gap-2">
+            {state.sections.map((section) => (
+              <View
+                key={section.order}
+                className="flex-row items-center gap-3 rounded-2xl bg-on-brand-subtle px-3 py-2.5"
+              >
+                <View className="size-7 items-center justify-center rounded-full bg-on-brand">
+                  <Text type="body-xs" weight="semibold" className="text-brand-end">
+                    {section.order}
+                  </Text>
+                </View>
+                <Text weight="medium" className="flex-1 text-on-brand" numberOfLines={1}>
+                  {sectionTitle(section.order)}
+                </Text>
+                <Text type="body-sm" className="text-on-brand-muted">
+                  {t('home.minutes', { count: Math.round(section.budgetMs / 60_000) })}
+                </Text>
+              </View>
+            ))}
+          </View>
           {state.breakMinutes === null ? null : (
-            <Text type="body-sm" color="muted">
+            <Text type="body-sm" className="text-on-brand-muted">
               {t('sectioned.breakBetween', { count: state.breakMinutes })}
             </Text>
           )}
-        </Card>
-        <View className="gap-3">
-          {rules.map((rule) => (
-            <View key={rule.icon} className="flex-row gap-3">
-              <Ionicons name={rule.icon} size={20} color={accent} />
+        </GradientView>
+        <Card className="gap-4 border border-border">
+          <Text weight="semibold">{t('sectioned.rulesTitle')}</Text>
+          {rules.map((rule, index) => (
+            <View key={rule.icon} className="flex-row items-center gap-3">
+              <IconTile icon={rule.icon} tone={TONES[index % TONES.length]!} size="sm" />
               <Text type="body-sm" className="flex-1 leading-5">
                 {rule.text}
               </Text>
             </View>
           ))}
-        </View>
+        </Card>
       </ScrollView>
-      <View
-        className="border-t border-separator bg-background px-4 pt-3"
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
-        <Button
-          onPress={() =>
-            first &&
-            dispatchAttempt(state.attemptId, { type: 'SECTION_START', sectionOrder: first.order })
-          }
-        >
-          <Button.Label>
-            {t('sectioned.startSection', { title: first ? sectionTitle(first.order) : '' })}
-          </Button.Label>
-        </Button>
-      </View>
+      <ActionBar>
+        <GradientButton
+          className="flex-1"
+          icon="play"
+          label={t('sectioned.startSection', { title: first ? sectionTitle(first.order) : '' })}
+          onPress={() => {
+            if (first) {
+              dispatchAttempt(state.attemptId, {
+                type: 'SECTION_START',
+                sectionOrder: first.order,
+              });
+            }
+          }}
+        />
+      </ActionBar>
     </View>
   );
 }

@@ -10,6 +10,7 @@ import {
   localAttempts,
   useAttemptSessionsStore,
 } from '@/stores/attempt-sessions';
+import { useSyncStatusStore } from '@/stores/sync-status-store';
 
 import { AttemptResultSchema } from './attempts';
 import { api } from './client';
@@ -109,6 +110,8 @@ async function run(attemptId: string): Promise<SyncOutcome> {
         .json(SyncResultSchema);
 
       localAttempts.acknowledge(attemptId, result.ackedSeq);
+      // A timestamp to show, not a duration: Date.now() is fine here.
+      useSyncStatusStore.getState().markSynced(Date.now());
       if (result.applied) session.markSynced(state.lastSeq);
       useAttemptSessionsStore.setState({ index: localAttempts.listAttempts() });
 
@@ -155,6 +158,23 @@ function finish(attemptId: string, examId: string | undefined) {
   void queryClient.invalidateQueries({ queryKey: queryKeys.attempts.all });
   void queryClient.invalidateQueries({ queryKey: queryKeys.reports.all });
   if (examId) void queryClient.invalidateQueries({ queryKey: queryKeys.catalog.detail(examId) });
+}
+
+/** "Sync now": uploads every attempt kept on the device and waits for the outcomes. */
+export function syncAllAttemptsNow(): Promise<SyncOutcome[]> {
+  return Promise.all(localAttempts.listAttempts().map(({ attemptId }) => syncAttempt(attemptId)));
+}
+
+/**
+ * Attempts the server doesn't fully have yet: events not acknowledged, or a submit / abandon still
+ * to send. (Every attempt still on the device counts until the server has all of it.)
+ */
+export function pendingUploadCount(): number {
+  return localAttempts.listAttempts().filter((summary) => {
+    if (summary.closing !== null) return true;
+    const state = localAttempts.loadState(summary.attemptId);
+    return state !== null && state.lastSeq > localAttempts.ackedSeq(summary.attemptId);
+  }).length;
 }
 
 /** Uploads every attempt kept on the device. */

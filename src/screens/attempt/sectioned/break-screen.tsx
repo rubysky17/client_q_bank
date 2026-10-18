@@ -1,13 +1,19 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppState, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { isAnswered } from '@/attempt-engine/metrics';
 import { sectionQuestionIds } from '@/attempt-engine/reducer';
 import type { SessionState } from '@/attempt-engine/types';
-import { Button, Card, Text, useThemeColor } from '@/components/ui';
+import {
+  ActionBar,
+  Button,
+  Card,
+  FeatureIcon,
+  GradientButton,
+  ProgressRing,
+  Text,
+} from '@/components/ui';
 import { dispatchAttempt } from '@/stores/attempt-sessions';
 import { formatClockMs } from '@/utils/format-duration';
 
@@ -23,8 +29,6 @@ type BreakScreenProps = {
  */
 export function BreakScreen({ state, sectionTitle }: BreakScreenProps) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
-  const accent = useThemeColor('accent');
   const previous = state.sections.findLast((s) => s.status === 'COMPLETED');
   const next = state.sections.find((s) => s.status === 'LOCKED');
   if (!previous || !next) return null;
@@ -40,31 +44,36 @@ export function BreakScreen({ state, sectionTitle }: BreakScreenProps) {
   return (
     <View className="flex-1">
       <View className="flex-1 justify-center gap-6 p-6">
-        <View className="items-center gap-2">
-          <Ionicons
-            name={state.phase === 'ON_BREAK' ? 'cafe-outline' : 'checkmark-circle-outline'}
-            size={64}
-            color={accent}
-          />
+        <View className="items-center gap-3">
+          <FeatureIcon icon={state.phase === 'ON_BREAK' ? 'cafe-outline' : 'checkmark-done'} />
           <Text type="h3" className="text-center">
             {state.phase === 'ON_BREAK'
               ? t('sectioned.onBreak')
               : t('sectioned.sectionDone', { title: sectionTitle(previous.order) })}
           </Text>
         </View>
-        <Card className="gap-1">
-          <Text type="body-sm" color="muted">
-            {t('sectioned.doneSummary', {
-              answered,
-              total: done.length,
-              time: formatClockMs(previous.usedMs) ?? '',
-            })}
-          </Text>
-          {previous.endReason === 'TIME_UP' ? (
-            <Text type="body-sm" className="text-warning">
-              {t('sectioned.timeUp')}
+        <Card className="flex-row items-center gap-4 border border-border">
+          <ProgressRing
+            percent={done.length > 0 ? Math.round((answered / done.length) * 100) : 0}
+            size={56}
+            thickness={6}
+          >
+            <Text type="body-xs" weight="semibold">{`${answered}/${done.length}`}</Text>
+          </ProgressRing>
+          <View className="flex-1 gap-0.5">
+            <Text type="body-sm">
+              {t('sectioned.doneSummary', {
+                answered,
+                total: done.length,
+                time: formatClockMs(previous.usedMs) ?? '',
+              })}
             </Text>
-          ) : null}
+            {previous.endReason === 'TIME_UP' ? (
+              <Text type="body-sm" className="text-warning-soft-foreground">
+                {t('sectioned.timeUp')}
+              </Text>
+            ) : null}
+          </View>
         </Card>
         {state.phase === 'ON_BREAK' ? (
           <BreakCountdown
@@ -84,26 +93,23 @@ export function BreakScreen({ state, sectionTitle }: BreakScreenProps) {
           </Text>
         )}
       </View>
-      <View
-        className="gap-3 border-t border-separator bg-background px-4 pt-3"
-        style={{ paddingBottom: insets.bottom + 12 }}
-      >
+      <ActionBar direction="column">
         {state.phase === 'ON_BREAK' ? (
-          <Button
+          <GradientButton
+            icon="play"
+            label={t('sectioned.endBreakNow', { title: nextTitle })}
             onPress={() => {
               dispatchAttempt(id, { type: 'BREAK_END' });
               startNext();
             }}
-          >
-            <Button.Label>{t('sectioned.endBreakNow', { title: nextTitle })}</Button.Label>
-          </Button>
+          />
         ) : canBreak ? (
           <>
-            <Button onPress={() => dispatchAttempt(id, { type: 'BREAK_START' })}>
-              <Button.Label>
-                {t('sectioned.takeBreak', { count: state.breakMinutes ?? 0 })}
-              </Button.Label>
-            </Button>
+            <GradientButton
+              icon="cafe-outline"
+              label={t('sectioned.takeBreak', { count: state.breakMinutes ?? 0 })}
+              onPress={() => dispatchAttempt(id, { type: 'BREAK_START' })}
+            />
             <Button
               variant="secondary"
               onPress={() => {
@@ -115,11 +121,13 @@ export function BreakScreen({ state, sectionTitle }: BreakScreenProps) {
             </Button>
           </>
         ) : (
-          <Button onPress={startNext}>
-            <Button.Label>{t('sectioned.startSection', { title: nextTitle })}</Button.Label>
-          </Button>
+          <GradientButton
+            icon="play"
+            label={t('sectioned.startSection', { title: nextTitle })}
+            onPress={startNext}
+          />
         )}
-      </View>
+      </ActionBar>
     </View>
   );
 }
@@ -167,7 +175,7 @@ function BreakCountdown({ attemptId, startedAt, durationMs, nextOrder }: BreakCo
       <Text type="body-sm" color="muted">
         {t('sectioned.breakLeft')}
       </Text>
-      <Text type="h1" style={{ fontVariant: ['tabular-nums'] }}>
+      <Text type="h1" className="text-accent" style={{ fontVariant: ['tabular-nums'] }}>
         {formatClockMs(left) ?? ''}
       </Text>
     </View>

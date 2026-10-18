@@ -4,7 +4,8 @@
     "loading": "Loading…",
     "empty": "Nothing here yet",
     "goHome": "Go home",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "back": "Back"
   },
   "tabs": {
     "home": "Exams",
@@ -38,7 +39,9 @@
       "fullNameRequired": "Please enter your full name",
       "passwordMin": "Password must be at least {{count}} characters",
       "passwordMismatch": "Passwords do not match"
-    }
+    },
+    "welcomeBack": "Welcome back",
+    "welcomeSubtitle": "Sign in to continue your practice."
   },
   "home": {
     "greeting": "Hi, {{name}}",
@@ -48,7 +51,19 @@
     "untimed": "Untimed",
     "passMark": "Pass {{percent}}%",
     "continueTitle": "Continue where you left off",
-    "continueDetail": "{{title}} · {{section}} · {{answered}}/{{total}}"
+    "continueDetail": "{{title}} · {{section}} · {{answered}}/{{total}}",
+    "subtitle": "Let's keep your practice going",
+    "inProgress": "In progress",
+    "continueMeta": "{{section}} · {{answered}}/{{total}} answered",
+    "resume": "Resume",
+    "streak": "Day streak",
+    "avgCorrect": "Avg. correct",
+    "finished": "Exams finished",
+    "notTaken": "Not taken yet",
+    "goalTitle": "Today's goal",
+    "goalProgress": "{{done}}/{{goal}} questions",
+    "goalLeft": "{{count}} to go — keep it up!",
+    "goalDone": "Goal reached, well done!"
   },
   "exam": {
     "title": "Exam details",
@@ -76,7 +91,10 @@
     "startOver": "Start over",
     "startOverTitle": "Start over?",
     "startOverMessage": "Your current attempt will be kept in your history as Unfinished, and its answered questions still count in your reports.",
-    "needOnline": "You need a connection to start a new attempt. Your current one is still saved on this device."
+    "needOnline": "You need a connection to start a new attempt. Your current one is still saved on this device.",
+    "practiceShort": "Practice",
+    "yourProgress": "Your progress",
+    "avgCorrect": "{{percent}}% correct on average"
   },
   "attempt": {
     "title": "Test",
@@ -108,20 +126,47 @@
     "byDifficulty": "By difficulty",
     "tally": "{{correct}}/{{total}} correct",
     "review": "Review answers",
-    "done": "Back to exams"
+    "done": "Back to exams",
+    "scoreOf": "Score {{score}}/{{max}}",
+    "wrong": "Wrong",
+    "skipped": "Skipped",
+    "perQuestion": "Per question"
   },
   "review": {
     "title": "Review",
     "correct": "Correct",
     "wrong": "Wrong",
     "notAnswered": "Not answered",
-    "explanation": "Explanation"
+    "explanation": "Explanation",
+    "filterAndMap": "Filter & question list",
+    "list": "List",
+    "position": "{{current}}/{{total}}",
+    "outcome": "Result",
+    "difficulty": "Difficulty",
+    "domain": "Domain",
+    "section": "Section",
+    "flagged": "Flagged",
+    "noDomain": "No domain",
+    "clearFilters": "Clear filters",
+    "removeFilter": "Remove filter {{label}}",
+    "noMatch": "No question matches these filters",
+    "questions": "Questions ({{shown}}/{{total}})"
   },
   "history": {
     "title": "History",
     "empty": "No attempts yet",
     "score": "{{score}}/{{max}} pts",
-    "progress": "{{answered}}/{{total}} answered"
+    "progress": "{{answered}}/{{total}} answered",
+    "passed": "Passed",
+    "failed": "Not passed",
+    "thisWeek": "This week",
+    "earlier": "Earlier",
+    "filter": {
+      "all": "All",
+      "passed": "Passed",
+      "failed": "Not passed",
+      "inProgress": "In progress"
+    }
   },
   "reports": {
     "title": "Reports",
@@ -160,7 +205,26 @@
     "overview": "Exams",
     "examStats": "Avg. {{percent}}% · {{count}} attempts",
     "notCovered": "No questions",
-    "notEnough": "Choose at least 2 exams to compare"
+    "notEnough": "Choose at least 2 exams to compare",
+    "subtitle": "How you are doing, exam by exam",
+    "sinceFirst": "{{delta}}% since first attempt",
+    "answered": "Questions answered",
+    "outcomesSub": "{{count}} questions over every attempt",
+    "trendSub": "% correct, attempt by attempt",
+    "insights": "Insights",
+    "strongest": "Strongest: {{name}}",
+    "strongestDetail": "{{percent}}% correct · keep it up",
+    "weakest": "Focus area: {{name}}",
+    "weakestDetail": "{{percent}}% correct",
+    "slowest": "Slowest: {{name}}",
+    "slowestDetail": "{{time}} per answer on average",
+    "activity": "Study activity",
+    "activitySub": "Attempts per day · last 5 weeks · all exams",
+    "activitySummary": "{{count}} attempts in the last 5 weeks",
+    "streak": "{{count}}-day streak",
+    "less": "Less",
+    "more": "More",
+    "domainCount": "{{correct}}/{{total}} correct"
   },
   "status": {
     "IN_PROGRESS": "In progress",
@@ -195,7 +259,41 @@
       "USER": "Student",
       "HOST": "Author",
       "ADMIN": "Admin"
-    }
+    },
+    "statAttempts": "Finished",
+    "statAvg": "Avg. correct",
+    "statStreak": "Day streak",
+    "editProfile": "Edit profile",
+    "changePassword": "Change password",
+    "changePasswordHint": "Other devices will be signed out",
+    "study": "Study",
+    "dailyGoal": "Daily goal",
+    "dailyGoalOff": "No goal yet",
+    "dailyGoalOn": "{{count}} questions a day",
+    "goalOff": "Off",
+    "reminder": "Study reminder",
+    "reminderOn": "Every day at {{time}}",
+    "reminderOff": "Off",
+    "sync": "Offline attempts",
+    "pendingSync": "{{count}} attempt(s) waiting to sync",
+    "allSynced": "Everything is synced",
+    "lastSynced": "Last synced {{time}}",
+    "neverSynced": "Not synced on this device yet",
+    "syncNow": "Sync now",
+    "syncDone": "Synced just now",
+    "syncOffline": "No connection: it will sync by itself later",
+    "security": "Security",
+    "logoutAll": "Sign out of all devices",
+    "logoutAllHint": "Ends every session, this one too",
+    "logoutAllTitle": "Sign out everywhere?",
+    "logoutAllMessage": "You will need to sign in again on every device.",
+    "deleteAccount": "Delete account",
+    "deleteAccountHint": "Deletes your attempts for good",
+    "about": "About",
+    "help": "Help & feedback",
+    "helpSubject": "Q Bank feedback",
+    "privacy": "Privacy policy",
+    "reminderUnavailable": "Needs the latest app build"
   },
   "errors": {
     "network": "No connection. Check your internet and try again.",
@@ -236,7 +334,10 @@
     "count": "{{count}} questions",
     "practice": "Practice these questions",
     "empty": "No questions match these filters",
-    "clear": "Clear filters"
+    "clear": "Clear filters",
+    "subtitle": "Practice any question, with explanations",
+    "eyebrow": "Practice mode",
+    "cardHint": "Check each answer right away and read the explanation."
   },
   "practice": {
     "title": "Practice",
@@ -301,7 +402,10 @@
     "uploading": "Submitting…",
     "savedOfflineSubmit": "Submitted on this device",
     "savedOffline": "Saved on this device",
-    "savedOfflineHint": "You are offline. Your attempt is safe on this device and will be sent as soon as you are back online."
+    "savedOfflineHint": "You are offline. Your attempt is safe on this device and will be sent as soon as you are back online.",
+    "questionNumber": "Question {{current}}",
+    "introEyebrow": "{{count}} timed sections",
+    "rulesTitle": "How it works"
   },
   "insights": {
     "title": "How you decided",
@@ -329,5 +433,36 @@
     "slowest": "Slowest questions: {{items}}",
     "flagsTitle": "Flagged questions",
     "flagsDetail": "{{total}} flagged at some point: {{answered}} answered, {{correct}} right."
+  },
+  "splash": {
+    "tagline": "Practice smarter. Pass with confidence."
+  },
+  "reminder": {
+    "title": "Time to practice 📚",
+    "body": "A few questions today keep your streak going.",
+    "channel": "Study reminders",
+    "deniedTitle": "Notifications are off",
+    "deniedMessage": "Allow notifications for Q Bank in the system settings to get reminders.",
+    "openSettings": "Open settings"
+  },
+  "account": {
+    "profileTitle": "Edit profile",
+    "profileIntro": "Your name is shown on your attempts and reports. Email: {{email}}",
+    "save": "Save",
+    "passwordTitle": "Change password",
+    "passwordIntro": "After the change, every other device is signed out.",
+    "changePassword": "Change password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "samePassword": "Choose a password different from the current one",
+    "wrongPassword": "The password is incorrect",
+    "passwordChanged": "Password changed",
+    "passwordChangedHint": "Use the new password next time you sign in.",
+    "deleteTitle": "Delete account",
+    "deleteIntro": "This deletes your account, your attempts and your reports for good. It cannot be undone.",
+    "delete": "Delete my account",
+    "deleteConfirmTitle": "Delete your account?",
+    "deleteConfirmMessage": "Everything will be deleted for good.",
+    "notDeletable": "Author and admin accounts cannot be deleted from the app."
   }
 }

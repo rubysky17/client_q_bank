@@ -2,6 +2,7 @@ import '../../global.css';
 
 import { Stack } from 'expo-router';
 
+import { AppSplash } from '@/components/app-splash';
 import { AppProviders } from '@/providers/app-providers';
 import { useIsSignedIn } from '@/stores/auth-store';
 
@@ -11,6 +12,7 @@ export default function RootLayout() {
   return (
     <AppProviders>
       <RootNavigator />
+      <AppSplash />
     </AppProviders>
   );
 }

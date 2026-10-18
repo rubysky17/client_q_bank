@@ -1,9 +1,10 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { Button, Text, useThemeColor } from 'heroui-native';
+import { Button, Text } from 'heroui-native';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { describeError } from '@/api/errors';
+
+import { FeatureIcon } from './feature-icon';
 
 type ErrorViewProps = {
   error: unknown;
@@ -12,11 +13,10 @@ type ErrorViewProps = {
 
 export function ErrorView({ error, onRetry }: ErrorViewProps) {
   const { t } = useTranslation();
-  const dangerColor = useThemeColor('danger');
 
   return (
-    <View className="flex-1 items-center justify-center gap-4 p-6">
-      <Ionicons name="cloud-offline-outline" size={40} color={dangerColor} />
+    <View className="flex-1 items-center justify-center gap-5 p-6">
+      <FeatureIcon icon="cloud-offline-outline" size={72} />
       <Text align="center" color="muted">
         {describeError(error, t)}
       </Text>

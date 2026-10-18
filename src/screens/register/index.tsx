@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import type { z } from 'zod';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,7 +11,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRegister } from '@/api/auth';
 import { describeError } from '@/api/errors';
 import { FormTextField } from '@/components/form/form-text-field';
-import { Button, Card, Spinner, Text } from '@/components/ui';
+import { Button, GradientButton, Text } from '@/components/ui';
+import { AuthHero } from '@/screens/login/auth-hero';
 
 import { createRegisterSchema, type RegisterValues } from './schema';
 
@@ -44,93 +45,76 @@ export function RegisterScreen() {
     <KeyboardAwareScrollView
       bottomOffset={24}
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={[
-        styles.content,
-        { paddingTop: insets.top + 32, paddingBottom: insets.bottom + 24 },
-      ]}
+      contentContainerClassName="grow"
+      contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
     >
-      <Animated.View entering={FadeInDown.duration(500)} className="gap-2">
-        <Text type="h2">{t('auth.registerTitle')}</Text>
-        <Text color="muted">{t('auth.registerSubtitle')}</Text>
-      </Animated.View>
+      <AuthHero title={t('auth.registerTitle')} subtitle={t('auth.registerSubtitle')} />
 
-      <Animated.View entering={FadeInDown.delay(120).duration(500)}>
-        <Card>
-          <Card.Body className="gap-4">
-            <FormTextField
-              control={control}
-              name="fullName"
-              label={t('auth.fullName')}
-              placeholder={t('auth.fullNamePlaceholder')}
-              autoCapitalize="words"
-              autoComplete="name"
-              textContentType="name"
-              returnKeyType="next"
-              submitBehavior="submit"
-              onSubmitEditing={() => setFocus('email')}
-            />
-            <FormTextField
-              control={control}
-              name="email"
-              label={t('auth.email')}
-              placeholder={t('auth.emailPlaceholder')}
-              autoCapitalize="none"
-              autoCorrect={false}
-              keyboardType="email-address"
-              autoComplete="email"
-              textContentType="username"
-              returnKeyType="next"
-              submitBehavior="submit"
-              onSubmitEditing={() => setFocus('password')}
-            />
-            <FormTextField
-              control={control}
-              name="password"
-              label={t('auth.password')}
-              placeholder={t('auth.newPasswordPlaceholder')}
-              secureTextEntry
-              autoComplete="new-password"
-              textContentType="newPassword"
-              returnKeyType="next"
-              submitBehavior="submit"
-              onSubmitEditing={() => setFocus('confirmPassword')}
-            />
-            <FormTextField
-              control={control}
-              name="confirmPassword"
-              label={t('auth.confirmPassword')}
-              placeholder={t('auth.confirmPasswordPlaceholder')}
-              secureTextEntry
-              autoComplete="new-password"
-              textContentType="newPassword"
-              returnKeyType="go"
-              onSubmitEditing={onSubmit}
-            />
-            {error ? <Text className="text-danger">{describeError(error, t)}</Text> : null}
-            <Button onPress={onSubmit} isDisabled={isPending}>
-              {isPending ? <Spinner size="sm" /> : null}
-              <Button.Label>{t('auth.registerSubmit')}</Button.Label>
-            </Button>
-          </Card.Body>
-        </Card>
-      </Animated.View>
+      <Animated.View
+        entering={FadeInDown.delay(120).duration(500)}
+        className="-mt-7 grow gap-5 rounded-t-[28px] bg-background px-5 pt-6"
+      >
+        <FormTextField
+          control={control}
+          name="fullName"
+          label={t('auth.fullName')}
+          placeholder={t('auth.fullNamePlaceholder')}
+          autoCapitalize="words"
+          autoComplete="name"
+          textContentType="name"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => setFocus('email')}
+        />
+        <FormTextField
+          control={control}
+          name="email"
+          label={t('auth.email')}
+          placeholder={t('auth.emailPlaceholder')}
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="email-address"
+          autoComplete="email"
+          textContentType="username"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => setFocus('password')}
+        />
+        <FormTextField
+          control={control}
+          name="password"
+          label={t('auth.password')}
+          placeholder={t('auth.newPasswordPlaceholder')}
+          secureTextEntry
+          autoComplete="new-password"
+          textContentType="newPassword"
+          returnKeyType="next"
+          submitBehavior="submit"
+          onSubmitEditing={() => setFocus('confirmPassword')}
+        />
+        <FormTextField
+          control={control}
+          name="confirmPassword"
+          label={t('auth.confirmPassword')}
+          placeholder={t('auth.confirmPasswordPlaceholder')}
+          secureTextEntry
+          autoComplete="new-password"
+          textContentType="newPassword"
+          returnKeyType="go"
+          onSubmitEditing={onSubmit}
+        />
+        {error ? <Text className="text-danger">{describeError(error, t)}</Text> : null}
+        <GradientButton label={t('auth.registerSubmit')} onPress={onSubmit} isLoading={isPending} />
 
-      <View className="flex-row items-center justify-center">
-        <Text type="body-sm" color="muted">
-          {t('auth.haveAccount')}
-        </Text>
-        <Button variant="ghost" size="sm" onPress={back}>
-          <Button.Label>{t('auth.submit')}</Button.Label>
-        </Button>
-      </View>
+        <View className="flex-row items-center justify-center">
+          <Text type="body-sm" color="muted">
+            {t('auth.haveAccount')}
+          </Text>
+          <Button variant="ghost" size="sm" onPress={back}>
+            <Button.Label className="text-accent">{t('auth.submit')}</Button.Label>
+          </Button>
+        </View>
+      </Animated.View>
     </KeyboardAwareScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    flexGrow: 1,
-    gap: 24,
-    paddingHorizontal: 20,
-  },
-});

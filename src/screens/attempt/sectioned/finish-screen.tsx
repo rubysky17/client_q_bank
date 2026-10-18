@@ -1,11 +1,10 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import { type SyncOutcome, syncAttempt } from '@/api/attempt-sync';
-import { Button, Spinner, Text, useThemeColor } from '@/components/ui';
+import { Button, FeatureIcon, GradientButton, Spinner, Text } from '@/components/ui';
 
 type FinishScreenProps = {
   id: string;
@@ -19,7 +18,6 @@ type FinishScreenProps = {
 export function FinishScreen({ id, closing }: FinishScreenProps) {
   const { t } = useTranslation();
   const { replace, back, canGoBack } = useRouter();
-  const muted = useThemeColor('muted');
   const [outcome, setOutcome] = useState<SyncOutcome | 'RUNNING'>('RUNNING');
   const [attempt, setAttempt] = useState(0);
 
@@ -41,16 +39,19 @@ export function FinishScreen({ id, closing }: FinishScreenProps) {
 
   if (outcome === 'RUNNING' || outcome === 'DONE' || outcome === 'CLOSED') {
     return (
-      <View className="flex-1 items-center justify-center gap-4 p-8">
-        <Spinner />
-        <Text color="muted">{t('sectioned.uploading')}</Text>
+      <View className="flex-1 items-center justify-center gap-5 p-8">
+        <FeatureIcon icon="cloud-upload-outline" />
+        <View className="flex-row items-center gap-2">
+          <Spinner size="sm" />
+          <Text color="muted">{t('sectioned.uploading')}</Text>
+        </View>
       </View>
     );
   }
 
   return (
     <View className="flex-1 items-center justify-center gap-6 p-8">
-      <Ionicons name="cloud-offline-outline" size={64} color={muted} />
+      <FeatureIcon icon="cloud-offline-outline" />
       <View className="items-center gap-2">
         <Text type="h4" className="text-center">
           {closing === 'SUBMIT' ? t('sectioned.savedOfflineSubmit') : t('sectioned.savedOffline')}
@@ -60,14 +61,14 @@ export function FinishScreen({ id, closing }: FinishScreenProps) {
         </Text>
       </View>
       <View className="w-full gap-3">
-        <Button
+        <GradientButton
+          icon="refresh"
+          label={t('common.retry')}
           onPress={() => {
             setOutcome('RUNNING');
             setAttempt((n) => n + 1);
           }}
-        >
-          <Button.Label>{t('common.retry')}</Button.Label>
-        </Button>
+        />
         <Button variant="secondary" onPress={() => replace('/')}>
           <Button.Label>{t('common.goHome')}</Button.Label>
         </Button>
