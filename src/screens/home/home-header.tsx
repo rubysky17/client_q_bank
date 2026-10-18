@@ -4,6 +4,8 @@ import { View } from 'react-native';
 import { useMe } from '@/api/auth';
 import { Avatar, Skeleton, Text } from '@/components/ui';
 
+import { ContinueCards } from './continue-cards';
+
 export function HomeHeader() {
   const { t } = useTranslation();
   const { data: me, isPending } = useMe();
@@ -20,6 +22,7 @@ export function HomeHeader() {
           <Text type="h5">{t('home.greeting', { name: me?.fullName ?? '' })}</Text>
         )}
       </View>
+      <ContinueCards />
       <Text type="h3">{t('home.title')}</Text>
     </View>
   );

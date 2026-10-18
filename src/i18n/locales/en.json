@@ -3,13 +3,15 @@
     "retry": "Try again",
     "loading": "Loading…",
     "empty": "Nothing here yet",
-    "goHome": "Go home"
+    "goHome": "Go home",
+    "cancel": "Cancel"
   },
   "tabs": {
     "home": "Exams",
     "history": "History",
     "reports": "Reports",
-    "settings": "Settings"
+    "settings": "Settings",
+    "bank": "Practice"
   },
   "auth": {
     "title": "Sign in",
@@ -19,9 +21,23 @@
     "password": "Password",
     "passwordPlaceholder": "Enter your password",
     "submit": "Sign in",
+    "fullName": "Full name",
+    "fullNamePlaceholder": "Enter your full name",
+    "newPasswordPlaceholder": "At least 8 characters",
+    "confirmPassword": "Confirm password",
+    "confirmPasswordPlaceholder": "Enter your password again",
+    "registerTitle": "Create an account",
+    "registerSubtitle": "Sign up to practice exams and track your results",
+    "registerSubmit": "Sign up",
+    "registerLink": "Sign up",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
     "validation": {
       "emailInvalid": "Please enter a valid email",
-      "passwordRequired": "Please enter your password"
+      "passwordRequired": "Please enter your password",
+      "fullNameRequired": "Please enter your full name",
+      "passwordMin": "Password must be at least {{count}} characters",
+      "passwordMismatch": "Passwords do not match"
     }
   },
   "home": {
@@ -30,7 +46,9 @@
     "questions": "{{count}} questions",
     "minutes": "{{count}} min",
     "untimed": "Untimed",
-    "passMark": "Pass {{percent}}%"
+    "passMark": "Pass {{percent}}%",
+    "continueTitle": "Continue where you left off",
+    "continueDetail": "{{title}} · {{section}} · {{answered}}/{{total}}"
   },
   "exam": {
     "title": "Exam details",
@@ -44,7 +62,21 @@
     "sectionQuestions": "{{count}} questions",
     "myAttempts": "You have taken it {{count}} times",
     "start": "Start",
-    "resume": "Resume"
+    "resume": "Resume",
+    "byDomain": "By domain",
+    "byDifficulty": "By difficulty",
+    "practice": "Practice with explanations",
+    "sectionedFormat": "{{sections}} sections × {{minutes}} min",
+    "breakFormat": "{{count}}-min break between sections",
+    "inProgressTitle": "You have an unfinished attempt",
+    "inProgressDetail": "{{section}} · {{answered}}/{{total}} · {{time}} left",
+    "inProgressAnswered": "{{answered}}/{{total}} answered",
+    "inProgressElsewhere": "Your attempt in progress is saved on the server.",
+    "continue": "Continue",
+    "startOver": "Start over",
+    "startOverTitle": "Start over?",
+    "startOverMessage": "Your current attempt will be kept in your history as Unfinished, and its answered questions still count in your reports.",
+    "needOnline": "You need a connection to start a new attempt. Your current one is still saved on this device."
   },
   "attempt": {
     "title": "Test",
@@ -88,7 +120,8 @@
   "history": {
     "title": "History",
     "empty": "No attempts yet",
-    "score": "{{score}}/{{max}} pts"
+    "score": "{{score}}/{{max}} pts",
+    "progress": "{{answered}}/{{total}} answered"
   },
   "reports": {
     "title": "Reports",
@@ -132,12 +165,14 @@
   "status": {
     "IN_PROGRESS": "In progress",
     "SUBMITTED": "Submitted",
-    "EXPIRED": "Time up"
+    "EXPIRED": "Time up",
+    "ABANDONED": "Unfinished"
   },
   "difficulty": {
     "EASY": "Easy",
     "MEDIUM": "Medium",
-    "HARD": "Hard"
+    "HARD": "Hard",
+    "EXPERT": "Expert"
   },
   "settings": {
     "title": "Settings",
@@ -172,5 +207,127 @@
   },
   "notFound": {
     "title": "Page not found"
+  },
+  "question": {
+    "caseStudy": "Case study",
+    "showCaseStudy": "Show case study",
+    "hideCaseStudy": "Hide case study",
+    "zoomHint": "Tap to enlarge",
+    "close": "Close",
+    "number": "Q{{n}}",
+    "selectCount": "Select {{count}}",
+    "matchHint": "Tap a box, then choose what goes in it.",
+    "pickChoice": "Tap to choose",
+    "correctIs": "Correct: {{answer}}",
+    "clear": "Clear",
+    "eliminateOption": "Cross out option {{letter}}",
+    "restoreOption": "Bring back option {{letter}}"
+  },
+  "bank": {
+    "title": "Question bank",
+    "allExams": "All exams",
+    "allSections": "All sections",
+    "allDomains": "All domains",
+    "allDifficulties": "All levels",
+    "exam": "Exam",
+    "section": "Section",
+    "domain": "Domain",
+    "difficulty": "Difficulty",
+    "count": "{{count}} questions",
+    "practice": "Practice these questions",
+    "empty": "No questions match these filters",
+    "clear": "Clear filters"
+  },
+  "practice": {
+    "title": "Practice",
+    "progress": "Question {{current}}/{{total}}",
+    "score": "{{correct}}/{{answered}} correct",
+    "correct": "Correct",
+    "wrong": "Wrong — the answer is {{letter}}",
+    "explanation": "Explanation",
+    "prev": "Previous",
+    "next": "Next",
+    "finished": "You reached the last question",
+    "check": "Check answer",
+    "wrongMatch": "Not quite — the correct answers are shown above"
+  },
+  "confidence": {
+    "LOW": "Not sure",
+    "MEDIUM": "Fairly sure",
+    "HIGH": "Very sure"
+  },
+  "sectioned": {
+    "section": "Section {{order}}",
+    "pause": "Pause",
+    "ruleClock": "Each section has its own time. The clock only runs while you are working.",
+    "rulePause": "Pause or leave whenever you like and continue later: the time left is kept.",
+    "ruleEliminate": "Tap X to cross out options you know are wrong, and say how sure you are of your answer.",
+    "ruleFlag": "Flag questions to come back to them at the end of the section.",
+    "ruleLock": "Once a section ends (or its time runs out), you cannot go back to it.",
+    "ruleOffline": "No connection needed: everything is saved on your device and synced when you are online.",
+    "breakBetween": "An optional {{count}}-minute break between sections.",
+    "startSection": "Start {{title}}",
+    "paused": "Paused",
+    "pausedLeft": "{{title}}: {{time}} left",
+    "pausedHint": "The clock is stopped. Questions stay hidden until you continue.",
+    "resume": "Continue",
+    "saveAndExit": "Save and exit",
+    "reviewSection": "Review this section",
+    "flagShort": "Flag",
+    "confidenceQuestion": "How sure are you of this answer?",
+    "endTitle": "End {{title}}?",
+    "endUnanswered": "{{count}} question(s) not answered.",
+    "endFlagged": "{{count}} question(s) still flagged.",
+    "endLocked": "You cannot come back to this section afterwards.",
+    "endSubmits": "This is the last section: your attempt will be submitted.",
+    "endSection": "End section",
+    "endSectionNamed": "End {{title}}",
+    "reviewTitle": "Review {{title}}",
+    "reviewSummary": "{{answered}}/{{total}} answered · {{flagged}} flagged. Tap a question to go back to it.",
+    "filterAll": "All",
+    "filterFlagged": "Flagged ({{count}})",
+    "filterUnanswered": "Unanswered ({{count}})",
+    "reviewEmpty": "No questions here.",
+    "onBreak": "On a break",
+    "sectionDone": "{{title}} done",
+    "doneSummary": "{{answered}}/{{total}} answered in {{time}}.",
+    "timeUp": "This section ended because time ran out.",
+    "breakOffer": "Take a {{count}}-minute break before {{title}}?",
+    "nextReady": "{{title}} is ready. The clock starts when you do.",
+    "endBreakNow": "Start {{title}} now",
+    "takeBreak": "Take a {{count}}-min break",
+    "skipBreak": "Skip, start {{title}}",
+    "breakLeft": "Break time left",
+    "uploading": "Submitting…",
+    "savedOfflineSubmit": "Submitted on this device",
+    "savedOffline": "Saved on this device",
+    "savedOfflineHint": "You are offline. Your attempt is safe on this device and will be sent as soon as you are back online."
+  },
+  "insights": {
+    "title": "How you decided",
+    "confidenceTitle": "Confidence vs. result",
+    "mastered": "Mastered",
+    "masteredHint": "Sure and right",
+    "misconception": "Misconception",
+    "misconceptionHint": "Very sure but wrong: review these first",
+    "lucky": "Lucky guess",
+    "luckyHint": "Not sure but right",
+    "gap": "Knowledge gap",
+    "gapHint": "Not sure and wrong",
+    "noConfidence": "{{count}} question(s) without a confidence level",
+    "guessTitle": "Likely guesses",
+    "guessDetail": "{{count}} question(s) ({{correct}} right): not sure, or answered in under {{seconds}} s without crossing anything out.",
+    "eliminationTitle": "Crossing out",
+    "eliminationDetail": "{{total}} option(s) crossed out, {{percent}}% of them rightly (wrong options).",
+    "eliminatedCorrect": "{{count}} time(s) the right answer was crossed out.",
+    "changesTitle": "Changed answers",
+    "changesDetail": "Wrong → right: {{wrongToRight}} · Right → wrong: {{rightToWrong}} · Wrong → wrong: {{wrongToWrong}}",
+    "pacingTitle": "Pacing",
+    "sectionPace": "{{title}}: {{used}} of {{budget}}, {{avg}} per question",
+    "breakTaken": "{{time}} break",
+    "breakSkipped": "Break skipped",
+    "slowest": "Slowest questions: {{items}}",
+    "flagsTitle": "Flagged questions",
+    "flagsDetail": "{{total}} flagged at some point: {{answered}} answered, {{correct}} right."
   }
 }

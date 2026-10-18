@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import type { z } from 'zod';
@@ -21,6 +22,7 @@ export function LoginScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const accentForeground = useThemeColor('accent-foreground');
+  const { push } = useRouter();
   const { mutate: login, isPending, error } = useLogin();
   const { control, handleSubmit, setFocus } = useForm<
     LoginValues,
@@ -86,6 +88,15 @@ export function LoginScreen() {
           </Card.Body>
         </Card>
       </Animated.View>
+
+      <View className="flex-row items-center justify-center">
+        <Text type="body-sm" color="muted">
+          {t('auth.noAccount')}
+        </Text>
+        <Button variant="ghost" size="sm" onPress={() => push('/register')}>
+          <Button.Label>{t('auth.registerLink')}</Button.Label>
+        </Button>
+      </View>
     </KeyboardAwareScrollView>
   );
 }

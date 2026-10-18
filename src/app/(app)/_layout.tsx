@@ -15,6 +15,8 @@ export default function AppLayout() {
         options={{ title: t('result.title'), headerBackVisible: false, gestureEnabled: false }}
       />
       <Stack.Screen name="attempts/[id]/review" options={{ title: t('review.title') }} />
+      {/* The practice screen sets its own title (progress) and score. */}
+      <Stack.Screen name="practice" options={{ title: t('practice.title') }} />
     </Stack>
   );
 }

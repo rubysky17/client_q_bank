@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCatalog } from '@/api/catalog';
 import { EmptyView, ErrorView, LoadingView, Spinner, useThemeColor } from '@/components/ui';
 
+import { ContinueCards } from './continue-cards';
 import { ExamCard } from './exam-card';
 import { HomeHeader } from './home-header';
 
@@ -45,7 +46,17 @@ export function HomeScreen() {
   };
 
   if (isPending) return <LoadingView />;
-  if (!exams) return <ErrorView error={error} onRetry={refetch} />;
+  if (!exams) {
+    // Offline: the exam list can't load, but unfinished attempts on the device can be continued.
+    return (
+      <View className="flex-1" style={{ paddingTop: insets.top + 12 }}>
+        <View className="px-4">
+          <ContinueCards />
+        </View>
+        <ErrorView error={error} onRetry={refetch} />
+      </View>
+    );
+  }
 
   return (
     <FlashList

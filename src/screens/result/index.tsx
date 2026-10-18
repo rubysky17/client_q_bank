@@ -10,6 +10,8 @@ import { type AttemptResult, type Tally, useAttemptResult } from '@/api/attempts
 import { Button, Card, Chip, ErrorView, LoadingView, Text } from '@/components/ui';
 import { formatClock } from '@/utils/format-duration';
 
+import { DecisionInsights } from './decision-insights';
+
 type Row =
   | { kind: 'heading'; key: string; title: string }
   | { kind: 'tally'; key: string; label: string; tally: Tally };
@@ -110,9 +112,9 @@ function Summary({ result }: { result: AttemptResult }) {
               <Chip.Label>{result.passed ? t('result.passed') : t('result.failed')}</Chip.Label>
             </Chip>
           )}
-          {result.status === 'EXPIRED' ? (
+          {result.status === 'EXPIRED' || result.status === 'ABANDONED' ? (
             <Chip size="sm" variant="soft" color="warning">
-              <Chip.Label>{t('status.EXPIRED')}</Chip.Label>
+              <Chip.Label>{t(`status.${result.status}`)}</Chip.Label>
             </Chip>
           ) : null}
         </View>
@@ -137,6 +139,7 @@ function Summary({ result }: { result: AttemptResult }) {
           value={result.timeSpentSeconds === null ? '—' : formatClock(result.timeSpentSeconds)}
         />
       </Card>
+      {result.mode === 'SECTIONED' ? <DecisionInsights result={result} /> : null}
     </Animated.View>
   );
 }

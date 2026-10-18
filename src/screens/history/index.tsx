@@ -66,9 +66,11 @@ export function HistoryScreen() {
           statusLabel={t(`status.${item.status}`)}
           dateLabel={dateFormat.format(new Date(item.startedAt))}
           scoreLabel={
-            item.score === null
-              ? null
-              : t('history.score', { score: item.score, max: item.maxScore })
+            item.status === 'ABANDONED'
+              ? t('history.progress', { answered: item.answeredCount, total: item.totalQuestions })
+              : item.score === null
+                ? null
+                : t('history.score', { score: item.score, max: item.maxScore })
           }
           percent={item.percent}
           passed={item.passed}

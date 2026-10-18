@@ -13,17 +13,84 @@ import { api } from './client';
 import { nextPage, PAGE_SIZE, pageSchema } from './pagination';
 import { queryKeys } from './query-keys';
 
-export const AttemptStatusSchema = z.enum(['IN_PROGRESS', 'SUBMITTED', 'EXPIRED']);
+/** ABANDONED: the user started the exam over; answered questions still count in reports. */
+export const AttemptStatusSchema = z.enum(['IN_PROGRESS', 'SUBMITTED', 'EXPIRED', 'ABANDONED']);
 export type AttemptStatus = z.infer<typeof AttemptStatusSchema>;
 
-export const DifficultySchema = z.enum(['EASY', 'MEDIUM', 'HARD']);
+export const DifficultySchema = z.enum(['EASY', 'MEDIUM', 'HARD', 'EXPERT']);
 export type Difficulty = z.infer<typeof DifficultySchema>;
+
+/** An image of the question (chart, table…). `url` is relative to the API origin (`/media/...`). */
+export const QuestionMediaSchema = z.object({
+  url: z.string(),
+  alt: z.string(),
+  placement: z.enum(['CONTENT', 'EXPLANATION']),
+  width: z.number(),
+  height: z.number(),
+});
+export type QuestionMedia = z.infer<typeof QuestionMediaSchema>;
+
+/** Shared scenario several questions refer to. */
+export const CaseStudySchema = z.object({ title: z.string(), content: z.string() });
+export type CaseStudy = z.infer<typeof CaseStudySchema>;
+
+/** Fields added after the first release: older attempts (and servers) don't send them. */
+const questionExtras = {
+  caseStudy: CaseStudySchema.nullable().default(null),
+  media: z.array(QuestionMediaSchema).default([]),
+  /** "Question N" in the source paper, for imported exams. */
+  sourceNumber: z.number().nullable().default(null),
+};
+
+export const ConfidenceSchema = z.enum(['LOW', 'MEDIUM', 'HIGH']);
+
+/**
+ * LEGACY: one server deadline (`expiresAt`). SECTIONED: one clock per section, kept by the app
+ * (works offline, see `src/attempt-engine`). Older servers don't send the sectioned fields.
+ */
+const sectionedFields = {
+  mode: z.enum(['LEGACY', 'SECTIONED']).default('LEGACY'),
+  phase: z
+    .enum(['NOT_STARTED', 'IN_SECTION', 'IN_REVIEW', 'BREAK_OFFER', 'ON_BREAK', 'FINISHED'])
+    .nullable()
+    .default(null),
+  currentSectionOrder: z.number().nullable().default(null),
+  syncedSeq: z.number().default(0),
+  breakMinutes: z.number().nullable().default(null),
+  abandonedAt: z.string().nullable().default(null),
+};
+
+/** Decision trace of a question (SECTIONED attempts); null until synced. */
+const traceFields = {
+  confidence: ConfidenceSchema.nullable().default(null),
+  eliminatedOptionIds: z.array(z.string()).nullable().default(null),
+  firstResponse: z.unknown().optional(),
+  dwellMs: z.number().nullable().default(null),
+  timeToFirstAnswerMs: z.number().nullable().default(null),
+  timeToFinalAnswerMs: z.number().nullable().default(null),
+  visitCount: z.number().nullable().default(null),
+  answerChangeCount: z.number().nullable().default(null),
+  eliminationCount: z.number().nullable().default(null),
+  everFlagged: z.boolean().nullable().default(null),
+};
+
+const SectionClockSchema = z.object({
+  budgetMs: z.number(),
+  usedMs: z.number(),
+  status: z.enum(['LOCKED', 'ACTIVE', 'COMPLETED']),
+  startedAt: z.string().nullable(),
+  endedAt: z.string().nullable(),
+  endReason: z.enum(['USER', 'TIME_UP']).nullable(),
+  breakTakenMs: z.number().nullable(),
+  breakSkipped: z.boolean().nullable(),
+});
 
 const AttemptSummarySchema = z.object({
   id: z.string(),
   examId: z.string(),
   examTitle: z.string(),
   status: AttemptStatusSchema,
+  ...sectionedFields,
   passingScore: z.number().nullable(),
   startedAt: z.string(),
   /** null = untimed. */
@@ -38,6 +105,7 @@ const AttemptSummarySchema = z.object({
 
 export const AttemptListItemSchema = AttemptSummarySchema.extend({
   percent: z.number().nullable(),
+  answeredCount: z.number().default(0),
 });
 export type AttemptListItem = z.infer<typeof AttemptListItemSchema>;
 
@@ -53,8 +121,11 @@ export const AttemptQuestionSchema = z.object({
   response: z.unknown(),
   flagged: z.boolean(),
   answeredAt: z.string().nullable(),
+  ...traceFields,
   type: z.string(),
   content: z.string(),
+  /** Only CONTENT images here; explanation images come with the review. */
+  ...questionExtras,
   /** Type-specific payload (SINGLE_CHOICE: `{ options: [{ id, content }] }`). */
   data: z.unknown(),
 });
@@ -71,6 +142,8 @@ export const AttemptViewSchema = AttemptSummarySchema.extend({
       title: z.string(),
       order: z.number(),
       questionCount: z.number(),
+      /** SECTIONED only. */
+      clock: SectionClockSchema.nullable().default(null),
     }),
   ),
   questions: z.array(AttemptQuestionSchema),
@@ -107,9 +180,12 @@ export const AttemptResultSchema = z.object({
   examId: z.string(),
   examTitle: z.string(),
   status: AttemptStatusSchema,
+  mode: sectionedFields.mode,
   startedAt: z.string(),
   submittedAt: z.string().nullable(),
+  abandonedAt: sectionedFields.abandonedAt,
   timeSpentSeconds: z.number().nullable(),
+  sectionTiming: z.array(SectionClockSchema.extend({ sectionOrder: z.number() })).default([]),
   score: z.number(),
   maxScore: z.number(),
   percent: z.number(),
@@ -143,10 +219,12 @@ export const ReviewQuestionSchema = z.object({
   isCorrect: z.boolean().nullable(),
   response: z.unknown(),
   flagged: z.boolean(),
+  ...traceFields,
   type: z.string(),
   content: z.string(),
   difficulty: DifficultySchema,
   domain: z.object({ id: z.string(), name: z.string() }).nullable(),
+  ...questionExtras,
   data: z.unknown(),
   answerKey: z.unknown(),
   explanation: z.string().nullable(),

@@ -1,0 +1,186 @@
+import { FlashList } from '@shopify/flash-list';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import type { Difficulty } from '@/api/attempts';
+import {
+  type BankFacets,
+  type BankFilters,
+  useBankFacets,
+  useBankQuestions,
+} from '@/api/question-bank';
+import { Button, Chip, EmptyView, ErrorView, LoadingView, Spinner, Text } from '@/components/ui';
+
+import { BankRow } from './bank-row';
+import { toParams } from './filters';
+
+/** Every published question, filterable by exam, section, domain and difficulty. */
+export function BankScreen() {
+  const { t } = useTranslation();
+  const { push } = useRouter();
+  const insets = useSafeAreaInsets();
+  const [filters, setFilters] = useState<BankFilters>({});
+  const { data: facets, error: facetsError, refetch: refetchFacets } = useBankFacets();
+  const { data, error, isPending, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useBankQuestions(filters);
+
+  const practice = (start: number) =>
+    push({ pathname: '/practice', params: toParams(filters, start) });
+
+  const loadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
+  };
+
+  if (!facets) {
+    return facetsError ? (
+      <ErrorView error={facetsError} onRetry={refetchFacets} />
+    ) : (
+      <LoadingView />
+    );
+  }
+
+  const header = (
+    <View className="gap-4 pb-4">
+      <Text type="h2">{t('bank.title')}</Text>
+      <FilterBar facets={facets} filters={filters} onChange={setFilters} />
+      <View className="flex-row items-center justify-between gap-3">
+        <Text type="body-sm" color="muted">
+          {data ? t('bank.count', { count: data.total }) : ' '}
+        </Text>
+        {data && data.total > 0 ? (
+          <Button size="sm" onPress={() => practice(0)}>
+            <Button.Label>{t('bank.practice')}</Button.Label>
+          </Button>
+        ) : null}
+      </View>
+    </View>
+  );
+
+  return (
+    <FlashList
+      data={data?.items ?? []}
+      keyExtractor={(question) => question.id}
+      renderItem={({ item, index }) => (
+        <BankRow
+          index={index}
+          label={`${item.examTitle} · ${item.sectionTitle} · ${t('question.number', {
+            n: item.sourceNumber ?? item.order,
+          })}`}
+          preview={item.content}
+          domain={item.domain?.name ?? null}
+          difficultyLabel={t(`difficulty.${item.difficulty}`)}
+          hasCaseStudy={item.caseStudy !== null}
+          hasMedia={item.media.some((media) => media.placement === 'CONTENT')}
+          onPress={practice}
+        />
+      )}
+      ItemSeparatorComponent={Gap}
+      ListHeaderComponent={header}
+      ListEmptyComponent={
+        isPending ? (
+          <Spinner className="my-6 self-center" />
+        ) : error ? (
+          <ErrorView error={error} onRetry={refetch} />
+        ) : (
+          <EmptyView message={t('bank.empty')} />
+        )
+      }
+      ListFooterComponent={isFetchingNextPage ? <Spinner className="my-6 self-center" /> : null}
+      onEndReached={loadMore}
+      onEndReachedThreshold={0.5}
+      contentContainerStyle={{
+        paddingTop: insets.top + 12,
+        paddingHorizontal: 16,
+        paddingBottom: 24,
+      }}
+    />
+  );
+}
+
+type FilterBarProps = {
+  facets: BankFacets;
+  filters: BankFilters;
+  onChange: (filters: BankFilters) => void;
+};
+
+function FilterBar({ facets, filters, onChange }: FilterBarProps) {
+  const { t } = useTranslation();
+  const exam = facets.exams.find((e) => e.id === filters.examId);
+
+  return (
+    <View className="gap-2">
+      <ChipRow
+        options={facets.exams.map((e) => ({ value: e.id, label: e.title }))}
+        value={filters.examId}
+        allLabel={t('bank.allExams')}
+        // Sections belong to one exam: changing the exam resets the section.
+        onSelect={(examId) => onChange({ ...filters, examId, sectionId: undefined })}
+      />
+      {exam ? (
+        <ChipRow
+          options={exam.sections.map((s) => ({ value: s.id, label: s.title }))}
+          value={filters.sectionId}
+          allLabel={t('bank.allSections')}
+          onSelect={(sectionId) => onChange({ ...filters, sectionId })}
+        />
+      ) : null}
+      <ChipRow
+        options={facets.domains.map((d) => ({ value: d.id, label: d.name }))}
+        value={filters.domainId}
+        allLabel={t('bank.allDomains')}
+        onSelect={(domainId) => onChange({ ...filters, domainId })}
+      />
+      <ChipRow
+        options={facets.difficulties.map((d) => ({
+          value: d.difficulty,
+          label: t(`difficulty.${d.difficulty}`),
+        }))}
+        value={filters.difficulty}
+        allLabel={t('bank.allDifficulties')}
+        onSelect={(difficulty) =>
+          onChange({ ...filters, difficulty: difficulty as Difficulty | undefined })
+        }
+      />
+    </View>
+  );
+}
+
+type ChipRowProps = {
+  options: { value: string; label: string }[];
+  value: string | undefined;
+  allLabel: string;
+  onSelect: (value: string | undefined) => void;
+};
+
+/** One filter: "All" plus one chip per value, scrolling sideways. */
+function ChipRow({ options, value, allLabel, onSelect }: ChipRowProps) {
+  const choices = [{ value: undefined, label: allLabel }, ...options];
+
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-2">
+      {choices.map((choice) => {
+        const isSelected = choice.value === value;
+        return (
+          <Chip
+            key={choice.value ?? 'all'}
+            size="md"
+            variant={isSelected ? 'primary' : 'soft'}
+            color={isSelected ? 'accent' : 'default'}
+            accessibilityRole="button"
+            accessibilityState={{ selected: isSelected }}
+            onPress={() => onSelect(choice.value)}
+          >
+            <Chip.Label>{choice.label}</Chip.Label>
+          </Chip>
+        );
+      })}
+    </ScrollView>
+  );
+}
+
+function Gap() {
+  return <View className="h-3" />;
+}

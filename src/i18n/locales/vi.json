@@ -3,13 +3,15 @@
     "retry": "Thử lại",
     "loading": "Đang tải…",
     "empty": "Chưa có dữ liệu",
-    "goHome": "Về trang chủ"
+    "goHome": "Về trang chủ",
+    "cancel": "Huỷ"
   },
   "tabs": {
     "home": "Đề thi",
     "history": "Lịch sử",
     "reports": "Báo cáo",
-    "settings": "Cài đặt"
+    "settings": "Cài đặt",
+    "bank": "Luyện tập"
   },
   "auth": {
     "title": "Đăng nhập",
@@ -19,9 +21,23 @@
     "password": "Mật khẩu",
     "passwordPlaceholder": "Nhập mật khẩu",
     "submit": "Đăng nhập",
+    "fullName": "Họ và tên",
+    "fullNamePlaceholder": "Nhập họ và tên",
+    "newPasswordPlaceholder": "Tối thiểu 8 ký tự",
+    "confirmPassword": "Nhập lại mật khẩu",
+    "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
+    "registerTitle": "Tạo tài khoản",
+    "registerSubtitle": "Đăng ký để luyện đề và xem kết quả của bạn",
+    "registerSubmit": "Đăng ký",
+    "registerLink": "Đăng ký",
+    "noAccount": "Chưa có tài khoản?",
+    "haveAccount": "Đã có tài khoản?",
     "validation": {
       "emailInvalid": "Email không hợp lệ",
-      "passwordRequired": "Vui lòng nhập mật khẩu"
+      "passwordRequired": "Vui lòng nhập mật khẩu",
+      "fullNameRequired": "Vui lòng nhập họ và tên",
+      "passwordMin": "Mật khẩu tối thiểu {{count}} ký tự",
+      "passwordMismatch": "Mật khẩu nhập lại không khớp"
     }
   },
   "home": {
@@ -30,7 +46,9 @@
     "questions": "{{count}} câu",
     "minutes": "{{count}} phút",
     "untimed": "Không giới hạn",
-    "passMark": "Đạt {{percent}}%"
+    "passMark": "Đạt {{percent}}%",
+    "continueTitle": "Đang làm dở",
+    "continueDetail": "{{title}} · {{section}} · {{answered}}/{{total}} câu"
   },
   "exam": {
     "title": "Chi tiết đề",
@@ -44,7 +62,21 @@
     "sectionQuestions": "{{count}} câu",
     "myAttempts": "Bạn đã làm {{count}} lần",
     "start": "Bắt đầu làm bài",
-    "resume": "Tiếp tục bài đang làm"
+    "resume": "Tiếp tục bài đang làm",
+    "byDomain": "Theo domain",
+    "byDifficulty": "Theo độ khó",
+    "practice": "Luyện tập kèm lời giải",
+    "sectionedFormat": "{{sections}} phần × {{minutes}} phút",
+    "breakFormat": "nghỉ {{count}} phút giữa các phần",
+    "inProgressTitle": "Bạn đang làm dở đề này",
+    "inProgressDetail": "{{section}} · {{answered}}/{{total}} câu · còn {{time}}",
+    "inProgressAnswered": "Đã trả lời {{answered}}/{{total}} câu",
+    "inProgressElsewhere": "Bài đang làm được lưu trên máy chủ.",
+    "continue": "Tiếp tục làm",
+    "startOver": "Làm mới",
+    "startOverTitle": "Làm lại từ đầu?",
+    "startOverMessage": "Bài đang làm sẽ được lưu vào lịch sử với trạng thái Chưa hoàn thành, các câu đã trả lời vẫn được tính trong báo cáo.",
+    "needOnline": "Cần kết nối mạng để bắt đầu đề mới. Bài đang làm vẫn được giữ trên máy."
   },
   "attempt": {
     "title": "Làm bài",
@@ -88,7 +120,8 @@
   "history": {
     "title": "Lịch sử làm bài",
     "empty": "Bạn chưa làm bài nào",
-    "score": "{{score}}/{{max}} điểm"
+    "score": "{{score}}/{{max}} điểm",
+    "progress": "Đã làm {{answered}}/{{total}} câu"
   },
   "reports": {
     "title": "Báo cáo",
@@ -132,18 +165,20 @@
   "status": {
     "IN_PROGRESS": "Đang làm",
     "SUBMITTED": "Đã nộp",
-    "EXPIRED": "Hết giờ"
+    "EXPIRED": "Hết giờ",
+    "ABANDONED": "Chưa hoàn thành"
   },
   "difficulty": {
     "EASY": "Dễ",
     "MEDIUM": "Trung bình",
-    "HARD": "Khó"
+    "HARD": "Khó",
+    "EXPERT": "Chuyên gia"
   },
   "settings": {
     "title": "Cài đặt",
     "appearance": "Giao diện",
     "theme": {
-      "system": "Theo hệ thống",
+      "system": "Hệ thống",
       "light": "Sáng",
       "dark": "Tối"
     },
@@ -172,5 +207,127 @@
   },
   "notFound": {
     "title": "Không tìm thấy trang"
+  },
+  "question": {
+    "caseStudy": "Tình huống",
+    "showCaseStudy": "Xem tình huống",
+    "hideCaseStudy": "Ẩn tình huống",
+    "zoomHint": "Chạm để phóng to",
+    "close": "Đóng",
+    "number": "Câu {{n}}",
+    "selectCount": "Chọn {{count}} đáp án",
+    "matchHint": "Chạm vào một ô, rồi chọn đáp án đặt vào ô đó.",
+    "pickChoice": "Chạm để chọn",
+    "correctIs": "Đáp án đúng: {{answer}}",
+    "clear": "Bỏ chọn",
+    "eliminateOption": "Loại đáp án {{letter}}",
+    "restoreOption": "Bỏ loại đáp án {{letter}}"
+  },
+  "bank": {
+    "title": "Ngân hàng câu hỏi",
+    "allExams": "Tất cả đề",
+    "allSections": "Tất cả section",
+    "allDomains": "Tất cả domain",
+    "allDifficulties": "Mọi độ khó",
+    "exam": "Đề",
+    "section": "Section",
+    "domain": "Domain",
+    "difficulty": "Độ khó",
+    "count": "{{count}} câu hỏi",
+    "practice": "Luyện các câu này",
+    "empty": "Không có câu hỏi nào khớp bộ lọc",
+    "clear": "Xoá bộ lọc"
+  },
+  "practice": {
+    "title": "Luyện tập",
+    "progress": "Câu {{current}}/{{total}}",
+    "score": "Đúng {{correct}}/{{answered}}",
+    "correct": "Chính xác",
+    "wrong": "Chưa đúng — đáp án là {{letter}}",
+    "explanation": "Lời giải",
+    "prev": "Câu trước",
+    "next": "Câu sau",
+    "finished": "Bạn đã đến câu cuối cùng",
+    "check": "Kiểm tra",
+    "wrongMatch": "Chưa đúng — đáp án đúng hiển thị ở trên"
+  },
+  "confidence": {
+    "LOW": "Chưa chắc",
+    "MEDIUM": "Khá chắc",
+    "HIGH": "Rất chắc"
+  },
+  "sectioned": {
+    "section": "Phần {{order}}",
+    "pause": "Tạm dừng",
+    "ruleClock": "Mỗi phần có thời gian riêng. Đồng hồ chỉ chạy khi bạn đang làm bài.",
+    "rulePause": "Bạn có thể tạm dừng hoặc thoát bất cứ lúc nào và làm tiếp sau, thời gian còn lại được giữ nguyên.",
+    "ruleEliminate": "Bấm X để loại đáp án bạn chắc chắn sai, và chọn mức độ tự tin cho câu trả lời.",
+    "ruleFlag": "Đánh cờ câu muốn xem lại, cuối mỗi phần bạn có thể quay lại các câu đó.",
+    "ruleLock": "Khi kết thúc một phần (hoặc hết giờ), bạn không thể quay lại phần đó nữa.",
+    "ruleOffline": "Không cần mạng khi làm bài: mọi thứ được lưu trên máy và tự đồng bộ khi có mạng.",
+    "breakBetween": "Được nghỉ {{count}} phút giữa các phần (không bắt buộc).",
+    "startSection": "Bắt đầu {{title}}",
+    "paused": "Đã tạm dừng",
+    "pausedLeft": "{{title}}: còn {{time}}",
+    "pausedHint": "Đồng hồ đã dừng. Câu hỏi được ẩn cho tới khi bạn làm tiếp.",
+    "resume": "Làm tiếp",
+    "saveAndExit": "Lưu và thoát",
+    "reviewSection": "Xem lại phần này",
+    "flagShort": "Đánh cờ",
+    "confidenceQuestion": "Bạn chắc chắn với câu trả lời này đến đâu?",
+    "endTitle": "Kết thúc {{title}}?",
+    "endUnanswered": "Còn {{count}} câu chưa trả lời.",
+    "endFlagged": "Còn {{count}} câu đang đánh cờ.",
+    "endLocked": "Sau khi kết thúc, bạn không thể quay lại phần này.",
+    "endSubmits": "Đây là phần cuối: bài sẽ được nộp.",
+    "endSection": "Kết thúc phần",
+    "endSectionNamed": "Kết thúc {{title}}",
+    "reviewTitle": "Xem lại {{title}}",
+    "reviewSummary": "Đã trả lời {{answered}}/{{total}} · {{flagged}} câu đánh cờ. Bấm vào một câu để quay lại.",
+    "filterAll": "Tất cả",
+    "filterFlagged": "Cờ ({{count}})",
+    "filterUnanswered": "Chưa làm ({{count}})",
+    "reviewEmpty": "Không có câu nào.",
+    "onBreak": "Đang nghỉ giải lao",
+    "sectionDone": "Đã xong {{title}}",
+    "doneSummary": "Đã trả lời {{answered}}/{{total}} câu trong {{time}}.",
+    "timeUp": "Phần này kết thúc do hết giờ.",
+    "breakOffer": "Bạn có muốn nghỉ {{count}} phút trước khi làm {{title}}?",
+    "nextReady": "{{title}} đã sẵn sàng. Đồng hồ sẽ chạy khi bạn bắt đầu.",
+    "endBreakNow": "Vào {{title}} ngay",
+    "takeBreak": "Nghỉ {{count}} phút",
+    "skipBreak": "Bỏ qua, làm {{title}}",
+    "breakLeft": "Thời gian nghỉ còn lại",
+    "uploading": "Đang nộp bài…",
+    "savedOfflineSubmit": "Bài đã được nộp trên máy",
+    "savedOffline": "Đã lưu trên máy",
+    "savedOfflineHint": "Không có kết nối mạng. Bài làm được giữ an toàn trên máy và sẽ tự gửi lên khi có mạng."
+  },
+  "insights": {
+    "title": "Phân tích quyết định",
+    "confidenceTitle": "Độ tự tin và kết quả",
+    "mastered": "Nắm chắc",
+    "masteredHint": "Tự tin và đúng",
+    "misconception": "Hiểu sai",
+    "misconceptionHint": "Rất chắc nhưng sai: cần xem lại kỹ",
+    "lucky": "Đoán trúng",
+    "luckyHint": "Chưa chắc nhưng đúng",
+    "gap": "Lỗ hổng kiến thức",
+    "gapHint": "Chưa chắc và sai",
+    "noConfidence": "{{count}} câu không chọn mức độ tự tin",
+    "guessTitle": "Có dấu hiệu chọn lụi",
+    "guessDetail": "{{count}} câu (đúng {{correct}}): chưa chắc, hoặc trả lời dưới {{seconds}} giây mà không loại đáp án nào.",
+    "eliminationTitle": "Loại đáp án",
+    "eliminationDetail": "Loại {{total}} đáp án, {{percent}}% loại đúng (đáp án sai).",
+    "eliminatedCorrect": "{{count}} lần loại nhầm đáp án đúng.",
+    "changesTitle": "Đổi đáp án",
+    "changesDetail": "Sai → đúng: {{wrongToRight}} · Đúng → sai: {{rightToWrong}} · Sai → sai: {{wrongToWrong}}",
+    "pacingTitle": "Nhịp làm bài",
+    "sectionPace": "{{title}}: dùng {{used}}/{{budget}}, trung bình {{avg}}/câu",
+    "breakTaken": "Nghỉ {{time}}",
+    "breakSkipped": "Bỏ qua giờ nghỉ",
+    "slowest": "Câu tốn thời gian nhất: {{items}}",
+    "flagsTitle": "Câu đánh cờ",
+    "flagsDetail": "{{total}} câu từng đánh cờ: trả lời {{answered}}, đúng {{correct}}."
   }
 }

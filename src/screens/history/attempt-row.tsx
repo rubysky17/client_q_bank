@@ -19,6 +19,7 @@ const STATUS_COLOR = {
   IN_PROGRESS: 'accent',
   SUBMITTED: 'default',
   EXPIRED: 'warning',
+  ABANDONED: 'warning',
 } as const satisfies Record<AttemptStatus, 'accent' | 'default' | 'warning'>;
 
 // List item: primitive props only, no data fetching.

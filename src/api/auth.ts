@@ -10,6 +10,7 @@ import { AuthResponseSchema, UserSchema } from './session';
 export { type User, UserSchema } from './session';
 
 export type LoginInput = { email: string; password: string };
+export type RegisterInput = LoginInput & { fullName: string };
 
 export const meQueryOptions = queryOptions({
   queryKey: queryKeys.auth.me,
@@ -29,6 +30,24 @@ export function useLogin() {
     mutationKey: ['auth', 'login'],
     mutationFn: (input: LoginInput) =>
       api.post('auth/login', { json: { ...input, ...getDeviceInfo() } }).json(AuthResponseSchema),
+    onSuccess: async (session) => {
+      queryClient.setQueryData(queryKeys.auth.me, session.user);
+      await setTokens(session);
+    },
+  });
+}
+
+/** Creates a USER account (POST /auth/register) and signs it in right away. */
+export function useRegister() {
+  const queryClient = useQueryClient();
+  const setTokens = useAuthStore((s) => s.setTokens);
+
+  return useMutation({
+    mutationKey: ['auth', 'register'],
+    mutationFn: (input: RegisterInput) =>
+      api
+        .post('auth/register', { json: { ...input, ...getDeviceInfo() } })
+        .json(AuthResponseSchema),
     onSuccess: async (session) => {
       queryClient.setQueryData(queryKeys.auth.me, session.user);
       await setTokens(session);

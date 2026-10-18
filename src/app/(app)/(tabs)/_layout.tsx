@@ -26,6 +26,13 @@ export default function TabsLayout() {
           md="description"
         />
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="bank">
+        <NativeTabs.Trigger.Label>{t('tabs.bank')}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'checklist', selected: 'checklist.checked' }}
+          md="quiz"
+        />
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="history">
         <NativeTabs.Trigger.Label>{t('tabs.history')}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf={{ default: 'clock', selected: 'clock.fill' }} md="history" />

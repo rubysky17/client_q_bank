@@ -8,12 +8,15 @@ import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 
+import { startAttemptSync } from '@/api/attempt-sync';
+
 import { DevTools } from './dev-tools';
 import { NavigationTheme } from './navigation-theme';
 import { queryClient } from './query-client';
 import { startSettingsSync } from './settings-sync';
 
 startSettingsSync();
+startAttemptSync();
 
 /** Every app-wide provider, outermost first. Add new ones here, not in route files. */
 export function AppProviders({ children }: PropsWithChildren) {

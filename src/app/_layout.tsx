@@ -27,6 +27,7 @@ function RootNavigator() {
       </Stack.Protected>
       <Stack.Protected guard={!isSignedIn}>
         <Stack.Screen name="login" options={{ animation: 'fade' }} />
+        <Stack.Screen name="register" />
       </Stack.Protected>
     </Stack>
   );
