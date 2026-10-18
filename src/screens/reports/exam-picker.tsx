@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 
 import type { ReportExam } from '@/api/reports';
-import { Select, Text } from '@/components/ui';
+import { IconTile, Select, Text } from '@/components/ui';
 
 const toOption = (exam: ReportExam) => ({ value: exam.examId, label: exam.examTitle });
 
@@ -91,8 +91,9 @@ export function ExamMultiPicker({ exams, value, max, onChange }: ExamMultiPicker
 
 function PickerTrigger({ placeholder }: { placeholder: string }) {
   return (
-    <Select.Trigger>
-      <Select.Value placeholder={placeholder} numberOfLines={1} className="flex-1" />
+    <Select.Trigger className="h-14 gap-3 rounded-3xl border border-border bg-surface px-3">
+      <IconTile tone="blue" icon="document-text-outline" size="sm" />
+      <Select.Value placeholder={placeholder} numberOfLines={1} className="flex-1 font-semibold" />
       <Select.TriggerIndicator />
     </Select.Trigger>
   );

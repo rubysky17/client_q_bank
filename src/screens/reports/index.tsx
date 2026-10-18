@@ -26,9 +26,12 @@ export function ReportsScreen() {
   if (!exams) return <ErrorView error={error} onRetry={refetch} />;
 
   const title = (
-    <Text type="h3" className="pb-3">
-      {t('reports.title')}
-    </Text>
+    <View className="pb-3">
+      <Text type="h2">{t('reports.title')}</Text>
+      <Text type="body-sm" color="muted">
+        {t('reports.subtitle')}
+      </Text>
+    </View>
   );
 
   if (exams.length === 0) {

@@ -19,7 +19,7 @@ export const UserSchema = z.object({
 });
 export type User = z.infer<typeof UserSchema>;
 
-/** Body of POST /auth/login and POST /auth/refresh. */
+/** Body of POST /auth/login, POST /auth/register and POST /auth/refresh. */
 export const AuthResponseSchema = z.object({
   user: UserSchema,
   accessToken: z.string(),

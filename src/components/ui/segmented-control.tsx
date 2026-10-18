@@ -25,7 +25,10 @@ export function SegmentedControl<T extends string>({
         <Tabs.Indicator />
         {options.map((option) => (
           <Tabs.Trigger key={option.value} value={option.value} className="flex-1">
-            <Tabs.Label>{option.label}</Tabs.Label>
+            {/* One line: long labels (e.g. Vietnamese) shrink instead of wrapping. */}
+            <Tabs.Label numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+              {option.label}
+            </Tabs.Label>
           </Tabs.Trigger>
         ))}
       </Tabs.List>

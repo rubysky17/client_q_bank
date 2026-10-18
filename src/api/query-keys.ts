@@ -11,6 +11,11 @@ export const queryKeys = {
     list: () => [...queryKeys.catalog.all, 'list'] as const,
     detail: (examId: string) => [...queryKeys.catalog.all, 'detail', examId] as const,
   },
+  bank: {
+    all: ['bank'] as const,
+    facets: () => [...queryKeys.bank.all, 'facets'] as const,
+    list: (filters: object) => [...queryKeys.bank.all, 'list', filters] as const,
+  },
   attempts: {
     all: ['attempts'] as const,
     list: () => [...queryKeys.attempts.all, 'list'] as const,

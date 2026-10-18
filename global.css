@@ -18,6 +18,28 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  /* Soft tints of the series colors: icon tiles and chart fills. */
+  --color-chart-1-soft: var(--chart-1-soft);
+  --color-chart-2-soft: var(--chart-2-soft);
+  --color-chart-3-soft: var(--chart-3-soft);
+  --color-chart-4-soft: var(--chart-4-soft);
+  --color-chart-5-soft: var(--chart-5-soft);
+}
+
+/*
+ * Brand layer (Figma "Q Bank — Mobile" v2): the blue → violet gradient and the content drawn on it.
+ * Gradients are drawn with react-native-svg (components/ui/gradient-view.tsx), which reads the
+ * stops with useCSSVariable, hence `static`.
+ */
+@theme inline static {
+  --color-brand-start: var(--brand-start);
+  --color-brand-end: var(--brand-end);
+  --color-brand-glow: var(--brand-glow);
+  --color-on-brand: var(--on-brand);
+  --color-on-brand-muted: var(--on-brand-muted);
+  --color-on-brand-subtle: var(--on-brand-subtle);
+  --color-on-brand-faint: var(--on-brand-faint);
+  --color-on-brand-track: var(--on-brand-track);
 }
 
 @layer theme {
@@ -29,6 +51,20 @@
       --chart-3: #6250d6;
       --chart-4: #eda100;
       --chart-5: #e87ba4;
+      --chart-1-soft: #2a78d61f;
+      --chart-2-soft: #eb68341f;
+      --chart-3-soft: #6250d61f;
+      --chart-4-soft: #eda1001f;
+      --chart-5-soft: #e87ba41f;
+      --brand-start: #0485f7;
+      --brand-end: #6250d6;
+      --brand-glow: #8fc4ff;
+      /* Content on the brand gradient: white in both themes. */
+      --on-brand: #ffffff;
+      --on-brand-muted: #ffffffb3;
+      --on-brand-subtle: #ffffff2e;
+      --on-brand-faint: #ffffff1a;
+      --on-brand-track: #ffffff40;
     }
 
     @variant dark {
@@ -38,6 +74,20 @@
       --chart-3: #9085e9;
       --chart-4: #c98500;
       --chart-5: #d55181;
+      --chart-1-soft: #3987e529;
+      --chart-2-soft: #d9592629;
+      --chart-3-soft: #9085e929;
+      --chart-4-soft: #c9850029;
+      --chart-5-soft: #d5518129;
+      --brand-start: #1f8fff;
+      --brand-end: #7c6cf0;
+      --brand-glow: #3b5bdb;
+      /* Content on the brand gradient: white in both themes. */
+      --on-brand: #ffffff;
+      --on-brand-muted: #ffffffb3;
+      --on-brand-subtle: #ffffff2e;
+      --on-brand-faint: #ffffff1a;
+      --on-brand-track: #ffffff40;
     }
   }
 }

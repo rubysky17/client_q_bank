@@ -8,7 +8,7 @@ import {
 } from '@tanstack/react-query';
 import { z } from 'zod';
 
-import { AttemptViewSchema } from './attempts';
+import { AttemptViewSchema, DifficultySchema } from './attempts';
 import { api } from './client';
 import { nextPage, PAGE_SIZE, pageSchema } from './pagination';
 import { queryKeys } from './query-keys';
@@ -20,6 +20,8 @@ export const CatalogExamSchema = z.object({
   description: z.string().nullable(),
   /** null = untimed. */
   durationMinutes: z.number().nullable(),
+  /** Break offered between timed sections. */
+  breakMinutes: z.number().nullable().default(null),
   /** Pass mark in percent; null = no pass/fail. */
   passingScore: z.number().nullable(),
   publishedAt: z.string().nullable(),
@@ -38,9 +40,20 @@ export const CatalogExamDetailSchema = CatalogExamSchema.extend({
       title: z.string(),
       order: z.number(),
       instructions: z.string().nullable(),
+      /** When every section has one, the exam is taken section by section. */
+      durationMinutes: z.number().nullable().default(null),
       questionCount: z.number(),
     }),
   ),
+  /** Question counts per domain and difficulty. */
+  breakdown: z
+    .object({
+      domains: z.array(
+        z.object({ domainId: z.string().nullable(), name: z.string(), questionCount: z.number() }),
+      ),
+      difficulties: z.array(z.object({ difficulty: DifficultySchema, questionCount: z.number() })),
+    })
+    .default({ domains: [], difficulties: [] }),
   myAttemptCount: z.number(),
   /** The user's unfinished attempt on this exam, to offer "resume". */
   inProgressAttemptId: z.string().nullable(),
@@ -82,13 +95,19 @@ const StartAttemptSchema = AttemptViewSchema.extend({
   resumed: z.boolean(),
 });
 
-/** Starts an attempt, or resumes the one in progress. The result seeds the attempt screen's cache. */
+/**
+ * Starts an attempt, or resumes the one in progress. The result seeds the attempt screen's cache.
+ * `fresh: true` abandons the one in progress (it stays in history and reports) and starts over.
+ */
 export function useStartAttempt(examId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ['attempts', 'start', examId],
-    mutationFn: () => api.post(`catalog/exams/${examId}/attempts`).json(StartAttemptSchema),
+    mutationFn: (options: { fresh?: boolean } | void) =>
+      api
+        .post(`catalog/exams/${examId}/attempts`, { json: options ?? {} })
+        .json(StartAttemptSchema),
     onSuccess: ({ resumed: _resumed, ...attempt }) => {
       queryClient.setQueryData(queryKeys.attempts.detail(attempt.id), attempt);
       void queryClient.invalidateQueries({ queryKey: queryKeys.catalog.detail(examId) });

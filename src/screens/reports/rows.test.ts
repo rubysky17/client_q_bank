@@ -1,6 +1,6 @@
 import type { ExamReport, ReportDomain } from '@/api/reports';
 
-import { assignSlots, compareRows, mergeDomains, singleRows } from './rows';
+import { assignSlots, compareRows, mergeDomains, reportInsights, singleRows } from './rows';
 
 function domain(domainId: string | null, name: string | null): ReportDomain {
   return {
@@ -42,21 +42,49 @@ describe('singleRows', () => {
   it('lists the fixed sections, then one row per domain', () => {
     const rows = singleRows(report('a', [people, none]));
     expect(rows.map((row) => row.key)).toEqual([
+      'hero',
       'kpis',
       'outcomes',
       'trend',
       'h-domains',
       'd-d-people',
       'd-∅',
+      'activity',
+      'insights',
     ]);
   });
 
   it('drops the domain heading when there is no domain data', () => {
     expect(singleRows(report('a', [])).map((row) => row.kind)).toEqual([
+      'hero',
       'kpis',
       'outcomes',
       'trend',
+      'activity',
     ]);
+  });
+});
+
+describe('reportInsights', () => {
+  const at = (id: string, correctPercent: number, avgTimePerAnswerMs: number | null) => ({
+    ...domain(id, id),
+    correctPercent,
+    avgTimePerAnswerMs,
+  });
+
+  it('picks the strongest, weakest and slowest named domains', () => {
+    const insights = reportInsights(
+      report('a', [at('people', 80, 40_000), at('process', 60, 70_000), domain(null, null)]),
+    );
+    expect(insights?.strongest.domainId).toBe('people');
+    expect(insights?.weakest?.domainId).toBe('process');
+    expect(insights?.slowest?.domainId).toBe('process');
+  });
+
+  it('has no weakest with a single domain, and nothing without named domains', () => {
+    expect(reportInsights(report('a', [at('people', 80, null)]))?.weakest).toBeNull();
+    expect(reportInsights(report('a', [at('people', 80, null)]))?.slowest).toBeNull();
+    expect(reportInsights(report('a', [domain(null, null)]))).toBeNull();
   });
 });
 

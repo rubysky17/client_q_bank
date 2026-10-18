@@ -5,50 +5,66 @@ import {
   Card,
   ChartLegend,
   Chip,
+  type IconName,
+  IconTile,
   type LegendItem,
   LineChart,
   type LineSeries,
   PieChart,
   Text,
+  type Tone,
   useOutcomeColors,
 } from '@/components/ui';
 
 type KpiCardProps = {
-  avgCorrectPercent: number;
-  latestCorrectPercent: number;
-  bestCorrectPercent: number;
   attemptCount: number;
+  /** Correct + wrong over every attempt. */
+  answeredCount: number;
+  bestCorrectPercent: number;
   /** Average time per answer as a clock, or null when nothing was answered. */
   avgTime: string | null;
   isTimeEstimated: boolean;
 };
 
+/** 2 × 2 grid of the headline numbers under the hero card. */
 export function KpiCard({
-  avgCorrectPercent,
-  latestCorrectPercent,
-  bestCorrectPercent,
   attemptCount,
+  answeredCount,
+  bestCorrectPercent,
   avgTime,
   isTimeEstimated,
 }: KpiCardProps) {
   const { t } = useTranslation();
 
   return (
-    <Card className="gap-4">
-      <View className="gap-1">
-        <Text type="body-sm" color="muted">
-          {t('reports.avgCorrect')}
-        </Text>
-        <Text type="h1">{`${avgCorrectPercent}%`}</Text>
+    <View className="gap-3">
+      <View className="flex-row gap-3">
+        <Kpi
+          tone="violet"
+          icon="checkmark-done"
+          value={String(attemptCount)}
+          label={t('reports.attempts')}
+        />
+        <Kpi
+          tone="blue"
+          icon="help-circle-outline"
+          value={String(answeredCount)}
+          label={t('reports.answered')}
+        />
       </View>
-      <View className="flex-row flex-wrap gap-y-3">
-        <Fact label={t('reports.latest')} value={`${latestCorrectPercent}%`} />
-        <Fact label={t('reports.best')} value={`${bestCorrectPercent}%`} />
-        <Fact label={t('reports.attempts')} value={String(attemptCount)} />
-        <Fact
+      <View className="flex-row gap-3">
+        <Kpi
+          tone="orange"
+          icon="timer-outline"
+          value={avgTime ?? '—'}
           label={t('reports.avgTime')}
-          value={avgTime === null ? '—' : t('reports.perAnswer', { time: avgTime })}
           badge={isTimeEstimated ? t('reports.estimated') : null}
+        />
+        <Kpi
+          tone="amber"
+          icon="trophy-outline"
+          value={`${bestCorrectPercent}%`}
+          label={t('reports.best')}
         />
       </View>
       {isTimeEstimated ? (
@@ -56,25 +72,38 @@ export function KpiCard({
           {t('reports.estimatedHint')}
         </Text>
       ) : null}
-    </Card>
+    </View>
   );
 }
 
-function Fact({ label, value, badge }: { label: string; value: string; badge?: string | null }) {
+type KpiProps = {
+  tone: Tone;
+  icon: IconName;
+  value: string;
+  label: string;
+  badge?: string | null;
+};
+
+function Kpi({ tone, icon, value, label, badge }: KpiProps) {
   return (
-    <View className="w-1/2 gap-0.5 pr-2">
-      <Text type="body-xs" color="muted">
-        {label}
-      </Text>
-      <View className="flex-row flex-wrap items-center gap-1.5">
-        <Text weight="semibold">{value}</Text>
-        {badge ? (
-          <Chip size="sm" variant="soft" color="warning">
-            <Chip.Label>{badge}</Chip.Label>
-          </Chip>
-        ) : null}
+    <Card className="flex-1 flex-row items-center gap-3 border border-border p-3">
+      <IconTile tone={tone} icon={icon} size="sm" />
+      <View className="flex-1">
+        <View className="flex-row flex-wrap items-center gap-1">
+          <Text type="h6" numberOfLines={1}>
+            {value}
+          </Text>
+          {badge ? (
+            <Chip size="sm" variant="soft" color="warning">
+              <Chip.Label>{badge}</Chip.Label>
+            </Chip>
+          ) : null}
+        </View>
+        <Text type="body-xs" color="muted" numberOfLines={2}>
+          {label}
+        </Text>
       </View>
-    </View>
+    </Card>
   );
 }
 
@@ -102,8 +131,13 @@ export function OutcomesCard({ correct, wrong, unanswered }: OutcomesCardProps) 
   ];
 
   return (
-    <Card className="gap-4">
-      <Text weight="semibold">{t('reports.outcomes')}</Text>
+    <Card className="gap-4 border border-border">
+      <View>
+        <Text weight="semibold">{t('reports.outcomes')}</Text>
+        <Text type="body-xs" color="muted">
+          {t('reports.outcomesSub', { count: total })}
+        </Text>
+      </View>
       <View className="flex-row items-center gap-5">
         <PieChart
           size={132}
@@ -132,24 +166,96 @@ export function OutcomesCard({ correct, wrong, unanswered }: OutcomesCardProps) 
 
 type TrendCardProps = {
   series: readonly LineSeries[];
+  /** Area fill under a single series. */
+  area?: boolean;
   /** Names the series; only needed when there is more than one. */
   legend?: readonly LegendItem[];
   accessibilityLabel: string;
 };
 
 /** % correct per attempt (x = attempt number). */
-export function TrendCard({ series, legend, accessibilityLabel }: TrendCardProps) {
+export function TrendCard({ series, area = false, legend, accessibilityLabel }: TrendCardProps) {
   const { t } = useTranslation();
   const longest = Math.max(0, ...series.map((s) => s.values.length));
 
   return (
-    <Card className="gap-3">
-      <Text weight="semibold">{t('reports.trend')}</Text>
-      <LineChart series={series} accessibilityLabel={accessibilityLabel} />
+    <Card className="gap-3 border border-border">
+      <View>
+        <Text weight="semibold">{t('reports.trend')}</Text>
+        <Text type="body-xs" color="muted">
+          {t('reports.trendSub')}
+        </Text>
+      </View>
+      <LineChart series={series} area={area} accessibilityLabel={accessibilityLabel} />
       <Text type="body-xs" color="muted" align="center">
         {longest < 2 ? t('reports.oneAttempt') : t('reports.attemptAxis')}
       </Text>
       {legend ? <ChartLegend items={legend} /> : null}
     </Card>
+  );
+}
+
+type InsightsCardProps = {
+  strongest: { name: string; percent: number };
+  weakest: { name: string; percent: number } | null;
+  slowest: { name: string; time: string } | null;
+};
+
+/** Strongest and weakest domain and where answers take longest, from the report numbers. */
+export function InsightsCard({ strongest, weakest, slowest }: InsightsCardProps) {
+  const { t } = useTranslation();
+
+  return (
+    <Card className="gap-4 border border-border">
+      <Text weight="semibold">{t('reports.insights')}</Text>
+      <Insight
+        tone="violet"
+        icon="trophy-outline"
+        title={t('reports.strongest', { name: strongest.name })}
+        detail={t('reports.strongestDetail', { percent: strongest.percent })}
+      />
+      {weakest ? (
+        <Insight
+          tone="orange"
+          icon="alert-circle-outline"
+          title={t('reports.weakest', { name: weakest.name })}
+          detail={t('reports.weakestDetail', { percent: weakest.percent })}
+        />
+      ) : null}
+      {slowest ? (
+        <Insight
+          tone="blue"
+          icon="bulb-outline"
+          title={t('reports.slowest', { name: slowest.name })}
+          detail={t('reports.slowestDetail', { time: slowest.time })}
+        />
+      ) : null}
+    </Card>
+  );
+}
+
+function Insight({
+  tone,
+  icon,
+  title,
+  detail,
+}: {
+  tone: Tone;
+  icon: IconName;
+  title: string;
+  detail: string;
+}) {
+  return (
+    <View className="flex-row items-center gap-3">
+      <IconTile tone={tone} icon={icon} size="sm" />
+      <View className="flex-1">
+        <Text type="body-sm" weight="semibold">
+          {title}
+        </Text>
+        <Text type="body-xs" color="muted">
+          {detail}
+        </Text>
+      </View>
+    </View>
   );
 }

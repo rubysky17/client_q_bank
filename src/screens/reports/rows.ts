@@ -4,11 +4,14 @@
 import type { ExamReport, ReportDomain } from '@/api/reports';
 
 export type SingleRow =
+  | { kind: 'hero'; key: string }
   | { kind: 'kpis'; key: string }
   | { kind: 'outcomes'; key: string }
   | { kind: 'trend'; key: string }
   | { kind: 'heading'; key: string; title: 'byDomain' }
-  | { kind: 'domain'; key: string; domain: ReportDomain };
+  | { kind: 'domain'; key: string; domain: ReportDomain; index: number }
+  | { kind: 'activity'; key: string }
+  | { kind: 'insights'; key: string; insights: ReportInsights };
 
 export type CompareRow =
   | { kind: 'trend'; key: string }
@@ -34,21 +37,48 @@ const byDomainName = (a: { name: string | null }, b: { name: string | null }) =>
   a.name === null ? 1 : b.name === null ? -1 : a.name.localeCompare(b.name);
 
 export function singleRows(report: ExamReport): SingleRow[] {
+  const insights = reportInsights(report);
   return [
+    { kind: 'hero', key: 'hero' },
     { kind: 'kpis', key: 'kpis' },
     { kind: 'outcomes', key: 'outcomes' },
     { kind: 'trend', key: 'trend' },
     ...(report.domains.length > 0
       ? [
           { kind: 'heading' as const, key: 'h-domains', title: 'byDomain' as const },
-          ...report.domains.map((domain) => ({
+          ...report.domains.map((domain, index) => ({
             kind: 'domain' as const,
             key: `d-${domainKey(domain)}`,
             domain,
+            index,
           })),
         ]
       : []),
+    { kind: 'activity', key: 'activity' },
+    ...(insights ? [{ kind: 'insights' as const, key: 'insights', insights }] : []),
   ];
+}
+
+export type ReportInsights = {
+  strongest: ReportDomain;
+  /** null when it would be the same domain as the strongest. */
+  weakest: ReportDomain | null;
+  /** Domain with the longest measured time per answer; null when none was timed. */
+  slowest: ReportDomain | null;
+};
+
+/** Strongest / weakest / slowest named domain, from domains with answered questions. */
+export function reportInsights(report: ExamReport): ReportInsights | null {
+  const named = report.domains.filter((d) => d.name !== null && d.total > 0);
+  if (named.length === 0) return null;
+  const byPercent = [...named].sort((a, b) => b.correctPercent - a.correctPercent);
+  const strongest = byPercent[0]!;
+  const weakest = byPercent[byPercent.length - 1]!;
+  const timed = named.filter((d) => d.avgTimePerAnswerMs !== null);
+  const slowest = timed.length
+    ? timed.reduce((a, b) => ((b.avgTimePerAnswerMs ?? 0) > (a.avgTimePerAnswerMs ?? 0) ? b : a))
+    : null;
+  return { strongest, weakest: weakest === strongest ? null : weakest, slowest };
 }
 
 /** Union of the exams' domains, aligned to the exams' order. */

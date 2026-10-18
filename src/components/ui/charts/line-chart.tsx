@@ -1,7 +1,16 @@
 import { useThemeColor } from 'heroui-native';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { View } from 'react-native';
-import Svg, { Circle, G, Line, Path, Text as SvgText } from 'react-native-svg';
+import Svg, {
+  Circle,
+  Defs,
+  G,
+  Line,
+  LinearGradient,
+  Path,
+  Stop,
+  Text as SvgText,
+} from 'react-native-svg';
 
 import { labelIndexes, scaleLinear, toLinePath } from './geometry';
 
@@ -19,6 +28,8 @@ type LineChartProps = {
   yMax?: number;
   formatY?: (value: number) => string;
   formatX?: (index: number) => string;
+  /** Fills under the first series with its color fading out (single-series charts). */
+  area?: boolean;
   /** What the chart says, for screen readers. */
   accessibilityLabel: string;
 };
@@ -33,8 +44,10 @@ export function LineChart({
   yMax = 100,
   formatY = (value) => `${value}%`,
   formatX = (index) => String(index + 1),
+  area = false,
   accessibilityLabel,
 }: LineChartProps) {
+  const areaId = `area${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
   const [width, setWidth] = useState(0);
   const [grid, muted, surface] = useThemeColor(['separator', 'muted', 'surface']);
 
@@ -52,6 +65,14 @@ export function LineChart({
     >
       {width > 0 ? (
         <Svg width={width} height={height}>
+          {area && series[0] ? (
+            <Defs>
+              <LinearGradient id={areaId} x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor={series[0].color} stopOpacity={0.28} />
+                <Stop offset="1" stopColor={series[0].color} stopOpacity={0} />
+              </LinearGradient>
+            </Defs>
+          ) : null}
           {Y_TICKS.map((tick) => {
             const value = Math.round(tick * yMax);
             return (
@@ -88,16 +109,24 @@ export function LineChart({
               {formatX(index)}
             </SvgText>
           ))}
-          {series.map((s) => {
+          {series.map((s, seriesIndex) => {
             const points = s.values.map((value, index) => ({ x: x(index), y: y(value) }));
             const last = points[points.length - 1];
+            const first = points[0];
+            const baseline = y(0);
             return (
               <G key={s.key}>
+                {area && seriesIndex === 0 && first && last && points.length > 1 ? (
+                  <Path
+                    d={`${toLinePath(points)} L${last.x} ${baseline} L${first.x} ${baseline} Z`}
+                    fill={`url(#${areaId})`}
+                  />
+                ) : null}
                 {points.length > 1 ? (
                   <Path
                     d={toLinePath(points)}
                     stroke={s.color}
-                    strokeWidth={2}
+                    strokeWidth={area ? 3 : 2}
                     strokeLinejoin="round"
                     strokeLinecap="round"
                     fill="none"
