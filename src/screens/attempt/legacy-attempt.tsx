@@ -28,6 +28,13 @@ import {
   Text,
   useThemeColor,
 } from '@/components/ui';
+import {
+  dismissVocabOnScroll,
+  NoteModeHint,
+  NoteSelectionBar,
+  NoteToggle,
+  VocabScope,
+} from '@/components/vocab';
 import { formatClock } from '@/utils/format-duration';
 
 import { AttemptTopBar } from './attempt-top-bar';
@@ -117,8 +124,15 @@ export function LegacyAttemptScreen({ id }: LegacyAttemptScreenProps) {
       <Stack.Screen options={{ headerShown: false }} />
       <AttemptTopBar
         title={attempt.examTitle}
-        accessory={secondsLeft === null ? null : <TimerBadge seconds={secondsLeft} />}
+        accessory={
+          <View className="flex-row items-center gap-2">
+            <NoteToggle />
+            {secondsLeft === null ? null : <TimerBadge seconds={secondsLeft} />}
+          </View>
+        }
       />
+      <NoteModeHint />
+      <VocabScope sourceTitle={attempt.examTitle} resetKey={current.id} />
 
       <View className="gap-2 px-4 pt-1">
         <View className="flex-row items-baseline justify-between">
@@ -166,53 +180,57 @@ export function LegacyAttemptScreen({ id }: LegacyAttemptScreenProps) {
           {describeError(actionError, t)}
         </Text>
       ) : null}
-      <ActionBar>
-        <IconButton
-          icon="chevron-back"
-          size={48}
-          isDisabled={index === 0}
-          onPress={() => setIndex(index - 1)}
-          accessibilityLabel={t('attempt.prev')}
-        />
-        <PressableFeedback
-          onPress={() => change({ flagged: !current.flagged })}
-          accessibilityRole="button"
-          accessibilityState={{ checked: current.flagged }}
-          accessibilityLabel={current.flagged ? t('attempt.flagged') : t('attempt.flag')}
-          className={`h-12 flex-row items-center gap-1.5 rounded-3xl px-4 ${
-            current.flagged ? 'bg-warning-soft' : 'bg-surface-secondary'
-          }`}
-        >
-          <Ionicons
-            name={current.flagged ? 'flag' : 'flag-outline'}
-            size={16}
-            color={current.flagged ? warningSoftForeground : muted}
+      <NoteSelectionBar>
+        <ActionBar>
+          <IconButton
+            icon="chevron-back"
+            size={48}
+            isDisabled={index === 0}
+            onPress={() => setIndex(index - 1)}
+            accessibilityLabel={t('attempt.prev')}
           />
-          <Text
-            weight="medium"
-            className={current.flagged ? 'text-warning-soft-foreground' : 'text-default-foreground'}
+          <PressableFeedback
+            onPress={() => change({ flagged: !current.flagged })}
+            accessibilityRole="button"
+            accessibilityState={{ checked: current.flagged }}
+            accessibilityLabel={current.flagged ? t('attempt.flagged') : t('attempt.flag')}
+            className={`h-12 flex-row items-center gap-1.5 rounded-3xl px-4 ${
+              current.flagged ? 'bg-warning-soft' : 'bg-surface-secondary'
+            }`}
           >
-            {t('sectioned.flagShort')}
-          </Text>
-        </PressableFeedback>
-        {isLast ? (
-          <GradientButton
-            className="flex-1"
-            icon="paper-plane-outline"
-            label={t('attempt.submit')}
-            isLoading={isSubmitting}
-            onPress={confirmSubmit}
-          />
-        ) : (
-          <GradientButton
-            className="flex-1"
-            icon="arrow-forward"
-            iconEnd
-            label={t('attempt.next')}
-            onPress={() => setIndex(index + 1)}
-          />
-        )}
-      </ActionBar>
+            <Ionicons
+              name={current.flagged ? 'flag' : 'flag-outline'}
+              size={16}
+              color={current.flagged ? warningSoftForeground : muted}
+            />
+            <Text
+              weight="medium"
+              className={
+                current.flagged ? 'text-warning-soft-foreground' : 'text-default-foreground'
+              }
+            >
+              {t('sectioned.flagShort')}
+            </Text>
+          </PressableFeedback>
+          {isLast ? (
+            <GradientButton
+              className="flex-1"
+              icon="paper-plane-outline"
+              label={t('attempt.submit')}
+              isLoading={isSubmitting}
+              onPress={confirmSubmit}
+            />
+          ) : (
+            <GradientButton
+              className="flex-1"
+              icon="arrow-forward"
+              iconEnd
+              label={t('attempt.next')}
+              onPress={() => setIndex(index + 1)}
+            />
+          )}
+        </ActionBar>
+      </NoteSelectionBar>
     </View>
   );
 }
@@ -232,6 +250,7 @@ function QuestionBody({ question, onAnswer }: QuestionBodyProps) {
     <ScrollView
       contentContainerClassName="gap-3 px-4 pt-1 pb-4"
       keyboardShouldPersistTaps="handled"
+      onScrollBeginDrag={dismissVocabOnScroll}
     >
       <Card className="gap-3 border border-border">
         <View className="flex-row items-center justify-between gap-2">
@@ -246,10 +265,11 @@ function QuestionBody({ question, onAnswer }: QuestionBodyProps) {
           caseStudy={question.caseStudy}
           content={question.content}
           media={question.media}
+          vocabId={question.id}
         />
       </Card>
       {input ? (
-        <AnswerView input={input} answer={answer} onChange={onAnswer} />
+        <AnswerView input={input} answer={answer} onChange={onAnswer} vocabId={question.id} />
       ) : (
         <Text type="body-sm" className="text-warning">
           {t('attempt.unsupported')}

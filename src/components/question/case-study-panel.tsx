@@ -12,10 +12,12 @@ type CaseStudyPanelProps = {
   caseStudy: CaseStudy;
   /** Open at first; the reader can fold it away once read. */
   initiallyOpen?: boolean;
+  /** Turns on the vocabulary layer (block id prefix). */
+  vocabId?: string;
 };
 
 /** The shared scenario of "(Refer to the case study)" questions, foldable. */
-export function CaseStudyPanel({ caseStudy, initiallyOpen = true }: CaseStudyPanelProps) {
+export function CaseStudyPanel({ caseStudy, initiallyOpen = true, vocabId }: CaseStudyPanelProps) {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(initiallyOpen);
   const accent = useThemeColor('accent');
@@ -38,7 +40,7 @@ export function CaseStudyPanel({ caseStudy, initiallyOpen = true }: CaseStudyPan
         </View>
         <Ionicons name={isOpen ? 'chevron-up' : 'chevron-down'} size={18} color={accent} />
       </PressableFeedback>
-      {isOpen ? <Paragraphs text={caseStudy.content} type="body-sm" /> : null}
+      {isOpen ? <Paragraphs text={caseStudy.content} type="body-sm" vocabId={vocabId} /> : null}
     </View>
   );
 }

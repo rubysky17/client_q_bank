@@ -26,6 +26,13 @@ import {
   Text,
   useThemeColor,
 } from '@/components/ui';
+import {
+  dismissVocabOnScroll,
+  NoteModeHint,
+  NoteSelectionBar,
+  NoteToggle,
+  VocabScope,
+} from '@/components/vocab';
 import { AttemptTopBar } from '@/screens/attempt/attempt-top-bar';
 import { optionLetter } from '@/utils/format-duration';
 
@@ -86,13 +93,21 @@ export function PracticeScreen({ filters, start }: PracticeScreenProps) {
         title={t('practice.progress', { current: index + 1, total: data.total })}
         subtitle={t('practice.title')}
         accessory={
-          <View className="flex-row items-center gap-1 rounded-full bg-success-soft px-3 py-2">
-            <Ionicons name="checkmark-circle" size={14} color={success} />
-            <Text type="body-sm" weight="semibold" className="text-success-soft-foreground">
-              {t('practice.score', { correct: correctCount, answered: results.length })}
-            </Text>
+          <View className="flex-row items-center gap-2">
+            <NoteToggle />
+            <View className="flex-row items-center gap-1 rounded-full bg-success-soft px-3 py-2">
+              <Ionicons name="checkmark-circle" size={14} color={success} />
+              <Text type="body-sm" weight="semibold" className="text-success-soft-foreground">
+                {t('practice.score', { correct: correctCount, answered: results.length })}
+              </Text>
+            </View>
           </View>
         }
+      />
+      <NoteModeHint />
+      <VocabScope
+        sourceTitle={question.examTitle || t('vocab.practiceSource')}
+        resetKey={question.id}
       />
       <View className="mx-4 mb-1 h-1.5 overflow-hidden rounded-full bg-surface-secondary">
         <GradientView
@@ -101,7 +116,11 @@ export function PracticeScreen({ filters, start }: PracticeScreenProps) {
           style={{ width: `${Math.round(((index + 1) / Math.max(data.total, 1)) * 100)}%` }}
         />
       </View>
-      <ScrollView ref={scrollRef} contentContainerClassName="gap-3 px-4 pt-2 pb-4">
+      <ScrollView
+        ref={scrollRef}
+        contentContainerClassName="gap-3 px-4 pt-2 pb-4"
+        onScrollBeginDrag={dismissVocabOnScroll}
+      >
         <PracticeQuestion
           key={question.id}
           question={question}
@@ -119,23 +138,25 @@ export function PracticeScreen({ filters, start }: PracticeScreenProps) {
           {t('practice.finished')}
         </Text>
       ) : null}
-      <ActionBar>
-        <IconButton
-          icon="chevron-back"
-          size={48}
-          isDisabled={index === 0}
-          onPress={() => go(index - 1)}
-          accessibilityLabel={t('practice.prev')}
-        />
-        <GradientButton
-          className="flex-1"
-          icon="arrow-forward"
-          iconEnd
-          label={t('practice.next')}
-          isDisabled={isLast || index + 1 >= loaded}
-          onPress={() => go(index + 1)}
-        />
-      </ActionBar>
+      <NoteSelectionBar>
+        <ActionBar>
+          <IconButton
+            icon="chevron-back"
+            size={48}
+            isDisabled={index === 0}
+            onPress={() => go(index - 1)}
+            accessibilityLabel={t('practice.prev')}
+          />
+          <GradientButton
+            className="flex-1"
+            icon="arrow-forward"
+            iconEnd
+            label={t('practice.next')}
+            isDisabled={isLast || index + 1 >= loaded}
+            onPress={() => go(index + 1)}
+          />
+        </ActionBar>
+      </NoteSelectionBar>
     </View>
   );
 }
@@ -184,6 +205,7 @@ function PracticeQuestion({
           caseStudy={question.caseStudy}
           content={question.content}
           media={question.media}
+          vocabId={question.id}
         />
       </Card>
       <AnswerView
@@ -191,6 +213,7 @@ function PracticeQuestion({
         answer={answer}
         onChange={(next) => onAnswer(next, input.type === 'SINGLE_CHOICE')}
         solution={isChecked ? key : null}
+        vocabId={question.id}
       />
 
       {isChecked ? (
@@ -224,7 +247,13 @@ function PracticeQuestion({
         />
       )}
 
-      {isChecked ? <Explanation explanation={question.explanation} media={question.media} /> : null}
+      {isChecked ? (
+        <Explanation
+          explanation={question.explanation}
+          media={question.media}
+          vocabId={question.id}
+        />
+      ) : null}
     </View>
   );
 }

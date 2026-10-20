@@ -1,3 +1,4 @@
+import { Stack } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, View } from 'react-native';
@@ -12,6 +13,13 @@ import {
   IconButton,
   LoadingView,
 } from '@/components/ui';
+import {
+  dismissVocabOnScroll,
+  NoteModeHint,
+  NoteSelectionBar,
+  NoteToggle,
+  VocabScope,
+} from '@/components/vocab';
 
 import { ReviewCard } from './review-card';
 import {
@@ -41,6 +49,7 @@ export function ReviewScreen({ id, initialFilters, initialQuestionId }: ReviewSc
 
   return (
     <ReviewPager
+      examTitle={review.examTitle}
       questions={review.questions}
       initialFilters={initialFilters ?? NO_FILTERS}
       initialQuestionId={initialQuestionId}
@@ -49,13 +58,19 @@ export function ReviewScreen({ id, initialFilters, initialQuestionId }: ReviewSc
 }
 
 type ReviewPagerProps = {
+  examTitle: string;
   questions: ReviewQuestion[];
   initialFilters: ReviewFilters;
   initialQuestionId: string | undefined;
 };
 
 /** One question at a time among those passing the filters; the sheet jumps to any of them. */
-function ReviewPager({ questions, initialFilters, initialQuestionId }: ReviewPagerProps) {
+function ReviewPager({
+  examTitle,
+  questions,
+  initialFilters,
+  initialQuestionId,
+}: ReviewPagerProps) {
   const { t } = useTranslation();
   const [filters, setFilters] = useState(initialFilters);
   const [currentId, setCurrentId] = useState(initialQuestionId);
@@ -135,6 +150,9 @@ function ReviewPager({ questions, initialFilters, initialQuestionId }: ReviewPag
 
   return (
     <View className="flex-1">
+      {/* The pencil of vocabulary notes sits in the native header. */}
+      <Stack.Screen options={{ headerRight: renderNoteToggle }} />
+      <VocabScope sourceTitle={examTitle} resetKey={current?.question.id ?? null} />
       <ReviewNavBar
         number={current?.number ?? null}
         position={index + 1}
@@ -143,9 +161,14 @@ function ReviewPager({ questions, initialFilters, initialQuestionId }: ReviewPag
         active={active}
         onOpenSheet={() => setSheetOpen(true)}
       />
+      <NoteModeHint />
       {current ? (
         // Keyed by question so every question opens scrolled to the top.
-        <ScrollView key={current.question.id} contentContainerClassName="p-4">
+        <ScrollView
+          key={current.question.id}
+          contentContainerClassName="p-4"
+          onScrollBeginDrag={dismissVocabOnScroll}
+        >
           <ReviewCard question={current.question} />
         </ScrollView>
       ) : (
@@ -156,29 +179,31 @@ function ReviewPager({ questions, initialFilters, initialQuestionId }: ReviewPag
           </Button>
         </View>
       )}
-      <ActionBar>
-        <IconButton
-          icon="chevron-back"
-          size={48}
-          isDisabled={index === 0 || !current}
-          onPress={() => goTo(shown[index - 1]?.question.id)}
-          accessibilityLabel={t('attempt.prev')}
-        />
-        <IconButton
-          icon="grid-outline"
-          size={48}
-          onPress={() => setSheetOpen(true)}
-          accessibilityLabel={t('review.filterAndMap')}
-        />
-        <GradientButton
-          className="flex-1"
-          icon="arrow-forward"
-          iconEnd
-          label={t('attempt.next')}
-          isDisabled={index >= shown.length - 1}
-          onPress={() => goTo(shown[index + 1]?.question.id)}
-        />
-      </ActionBar>
+      <NoteSelectionBar>
+        <ActionBar>
+          <IconButton
+            icon="chevron-back"
+            size={48}
+            isDisabled={index === 0 || !current}
+            onPress={() => goTo(shown[index - 1]?.question.id)}
+            accessibilityLabel={t('attempt.prev')}
+          />
+          <IconButton
+            icon="grid-outline"
+            size={48}
+            onPress={() => setSheetOpen(true)}
+            accessibilityLabel={t('review.filterAndMap')}
+          />
+          <GradientButton
+            className="flex-1"
+            icon="arrow-forward"
+            iconEnd
+            label={t('attempt.next')}
+            isDisabled={index >= shown.length - 1}
+            onPress={() => goTo(shown[index + 1]?.question.id)}
+          />
+        </ActionBar>
+      </NoteSelectionBar>
       <ReviewSheet
         isOpen={sheetOpen}
         onOpenChange={setSheetOpen}
@@ -195,4 +220,9 @@ function ReviewPager({ questions, initialFilters, initialQuestionId }: ReviewPag
       />
     </View>
   );
+}
+
+/** Header button of the review (a module function: the same one on every render). */
+function renderNoteToggle() {
+  return <NoteToggle />;
 }

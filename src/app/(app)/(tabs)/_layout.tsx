@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useThemeColor } from '@/components/ui';
 
+/** Five tabs at most: Android's bottom navigation throws beyond that (Settings opens from Home). */
 export default function TabsLayout() {
   const { t } = useTranslation();
   const [background, accent, accentSoft, muted] = useThemeColor([
@@ -33,6 +34,13 @@ export default function TabsLayout() {
           md="quiz"
         />
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="vocab">
+        <NativeTabs.Trigger.Label>{t('tabs.vocab')}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'character.book.closed', selected: 'character.book.closed.fill' }}
+          md="translate"
+        />
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="history">
         <NativeTabs.Trigger.Label>{t('tabs.history')}</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf={{ default: 'clock', selected: 'clock.fill' }} md="history" />
@@ -42,13 +50,6 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Icon
           sf={{ default: 'chart.bar', selected: 'chart.bar.fill' }}
           md="bar_chart"
-        />
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="settings">
-        <NativeTabs.Trigger.Label>{t('tabs.settings')}</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          sf={{ default: 'gearshape', selected: 'gearshape.fill' }}
-          md="settings"
         />
       </NativeTabs.Trigger>
     </NativeTabs>

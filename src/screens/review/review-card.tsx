@@ -63,9 +63,16 @@ export function ReviewCard({ question }: { question: ReviewQuestion }) {
         content={question.content}
         media={question.media}
         caseStudyOpen={false}
+        vocabId={question.id}
       />
-      {input ? <AnswerView input={input} answer={answer} solution={key} /> : null}
-      <Explanation explanation={question.explanation} media={question.media} />
+      {input ? (
+        <AnswerView input={input} answer={answer} solution={key} vocabId={question.id} />
+      ) : null}
+      <Explanation
+        explanation={question.explanation}
+        media={question.media}
+        vocabId={question.id}
+      />
     </Card>
   );
 }
