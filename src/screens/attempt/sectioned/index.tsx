@@ -6,6 +6,7 @@ import { View } from 'react-native';
 
 import { activeSection } from '@/attempt-engine/reducer';
 import { IconButton, LoadingView, Text, useThemeColor } from '@/components/ui';
+import { NoteModeHint, NoteToggle, VocabScope } from '@/components/vocab';
 import {
   dispatchAttempt,
   getSession,
@@ -83,15 +84,27 @@ export function SectionedAttemptScreen({ id }: SectionedAttemptScreenProps) {
         subtitle={working ? state.examTitle : undefined}
         accessory={
           working ? (
-            <HeaderClock
-              attemptId={id}
-              isRunning={isRunning}
-              onPause={() => withSession(id, (s) => s.pause())}
-            />
+            <View className="flex-row items-center gap-2">
+              <NoteToggle />
+              <HeaderClock
+                attemptId={id}
+                isRunning={isRunning}
+                onPause={() => withSession(id, (s) => s.pause())}
+              />
+            </View>
           ) : null
         }
       />
+      <NoteModeHint />
       {body}
+      {/*
+        Vocabulary notes while a question is on screen. Paused, it unmounts: note mode ends and the
+        tooltip (drawn above everything, the pause cover included) closes. Not an attempt action:
+        nothing goes through dispatchAttempt and the clock is untouched.
+      */}
+      {state.phase === 'IN_SECTION' && isRunning ? (
+        <VocabScope sourceTitle={state.examTitle} resetKey={state.currentQuestionId} />
+      ) : null}
       {working && !isRunning ? (
         <PauseOverlay
           attemptId={id}

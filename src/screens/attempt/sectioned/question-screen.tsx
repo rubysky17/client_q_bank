@@ -25,6 +25,7 @@ import {
   Text,
   useThemeColor,
 } from '@/components/ui';
+import { dismissVocabOnScroll, NoteSelectionBar } from '@/components/vocab';
 import { type AttemptSnapshot, dispatchAttempt } from '@/stores/attempt-sessions';
 
 import { QuestionStrip } from '../question-strip';
@@ -117,52 +118,54 @@ export function QuestionScreen({ state, snapshot }: QuestionScreenProps) {
         confidence={trace?.confidence ?? null}
       />
 
-      <ActionBar>
-        <IconButton
-          icon="chevron-back"
-          size={48}
-          isDisabled={index === 0}
-          onPress={() => go(index - 1)}
-          accessibilityLabel={t('attempt.prev')}
-        />
-        <PressableFeedback
-          onPress={toggleFlag}
-          accessibilityRole="button"
-          accessibilityState={{ checked: flagged }}
-          accessibilityLabel={flagged ? t('attempt.flagged') : t('attempt.flag')}
-          className={`h-12 flex-row items-center gap-1.5 rounded-3xl px-4 ${
-            flagged ? 'bg-warning-soft' : 'bg-surface-secondary'
-          }`}
-        >
-          <Ionicons
-            name={flagged ? 'flag' : 'flag-outline'}
-            size={16}
-            color={flagged ? warningSoftForeground : muted}
+      <NoteSelectionBar>
+        <ActionBar>
+          <IconButton
+            icon="chevron-back"
+            size={48}
+            isDisabled={index === 0}
+            onPress={() => go(index - 1)}
+            accessibilityLabel={t('attempt.prev')}
           />
-          <Text
-            weight="medium"
-            className={flagged ? 'text-warning-soft-foreground' : 'text-default-foreground'}
+          <PressableFeedback
+            onPress={toggleFlag}
+            accessibilityRole="button"
+            accessibilityState={{ checked: flagged }}
+            accessibilityLabel={flagged ? t('attempt.flagged') : t('attempt.flag')}
+            className={`h-12 flex-row items-center gap-1.5 rounded-3xl px-4 ${
+              flagged ? 'bg-warning-soft' : 'bg-surface-secondary'
+            }`}
           >
-            {t('sectioned.flagShort')}
-          </Text>
-        </PressableFeedback>
-        {isLast ? (
-          <GradientButton
-            className="flex-1"
-            label={t('sectioned.reviewSection')}
-            icon="list"
-            onPress={() => dispatchAttempt(attemptId, { type: 'SECTION_REVIEW_OPEN' })}
-          />
-        ) : (
-          <GradientButton
-            className="flex-1"
-            label={t('attempt.next')}
-            icon="arrow-forward"
-            iconEnd
-            onPress={() => go(index + 1)}
-          />
-        )}
-      </ActionBar>
+            <Ionicons
+              name={flagged ? 'flag' : 'flag-outline'}
+              size={16}
+              color={flagged ? warningSoftForeground : muted}
+            />
+            <Text
+              weight="medium"
+              className={flagged ? 'text-warning-soft-foreground' : 'text-default-foreground'}
+            >
+              {t('sectioned.flagShort')}
+            </Text>
+          </PressableFeedback>
+          {isLast ? (
+            <GradientButton
+              className="flex-1"
+              label={t('sectioned.reviewSection')}
+              icon="list"
+              onPress={() => dispatchAttempt(attemptId, { type: 'SECTION_REVIEW_OPEN' })}
+            />
+          ) : (
+            <GradientButton
+              className="flex-1"
+              label={t('attempt.next')}
+              icon="arrow-forward"
+              iconEnd
+              onPress={() => go(index + 1)}
+            />
+          )}
+        </ActionBar>
+      </NoteSelectionBar>
     </View>
   );
 }
@@ -225,6 +228,7 @@ function QuestionBody({
     <ScrollView
       contentContainerClassName="gap-3 px-4 pt-1 pb-4"
       keyboardShouldPersistTaps="handled"
+      onScrollBeginDrag={dismissVocabOnScroll}
     >
       <Card className="gap-3 border border-border">
         <View className="flex-row items-center justify-between gap-2">
@@ -239,6 +243,7 @@ function QuestionBody({
           caseStudy={question.caseStudy}
           content={question.content}
           media={question.media}
+          vocabId={question.id}
         />
       </Card>
       {input ? (
@@ -248,6 +253,7 @@ function QuestionBody({
           onChange={onAnswer}
           eliminated={eliminated}
           onEliminate={input.type === 'DRAG_DROP' ? undefined : onEliminate}
+          vocabId={question.id}
         />
       ) : (
         <Text type="body-sm" className="text-warning">

@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import { startAttemptSync } from '@/api/attempt-sync';
+import { startVocabSync } from '@/api/vocab-sync';
 import { configureNotifications } from '@/lib/reminders';
 
 import { DevTools } from './dev-tools';
@@ -19,6 +20,7 @@ import { startSettingsSync } from './settings-sync';
 startSettingsSync();
 configureNotifications();
 startAttemptSync();
+startVocabSync();
 
 /** Every app-wide provider, outermost first. Add new ones here, not in route files. */
 export function AppProviders({ children }: PropsWithChildren) {

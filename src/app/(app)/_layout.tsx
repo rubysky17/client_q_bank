@@ -20,7 +20,8 @@ export default function AppLayout() {
       />
       <Stack.Screen name="attempts/[id]/review" options={{ title: t('review.title') }} />
       <Stack.Screen name="practice" options={{ title: t('practice.title'), headerShown: false }} />
-      {/* Account forms (Settings) draw the v2 top bar too. */}
+      {/* Settings (opened from Home) and its account forms draw the v2 top bar too. */}
+      <Stack.Screen name="settings" options={{ headerShown: false }} />
       <Stack.Screen name="profile" options={{ headerShown: false }} />
       <Stack.Screen name="change-password" options={{ headerShown: false }} />
       <Stack.Screen name="delete-account" options={{ headerShown: false }} />

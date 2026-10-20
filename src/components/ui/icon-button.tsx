@@ -9,6 +9,8 @@ type IconButtonProps = {
   accessibilityLabel: string;
   size?: number;
   isDisabled?: boolean;
+  /** Toggle buttons: on (accent fill, `accessibilityState.selected`). */
+  isSelected?: boolean;
   className?: string;
 };
 
@@ -19,9 +21,10 @@ export function IconButton({
   accessibilityLabel,
   size = 40,
   isDisabled = false,
+  isSelected,
   className,
 }: IconButtonProps) {
-  const foreground = useThemeColor('foreground');
+  const [foreground, accentForeground] = useThemeColor(['foreground', 'accent-foreground']);
 
   return (
     <PressableFeedback
@@ -30,15 +33,20 @@ export function IconButton({
       hitSlop={6}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ disabled: isDisabled }}
+      accessibilityState={{ disabled: isDisabled, selected: isSelected }}
       className={cn(
-        'items-center justify-center rounded-full border border-border bg-surface',
+        'items-center justify-center rounded-full border',
+        isSelected ? 'border-accent bg-accent' : 'border-border bg-surface',
         isDisabled ? 'opacity-40' : undefined,
         className,
       )}
       style={{ width: size, height: size }}
     >
-      <Ionicons name={icon} size={Math.round(size * 0.5)} color={foreground} />
+      <Ionicons
+        name={icon}
+        size={Math.round(size * 0.5)}
+        color={isSelected ? accentForeground : foreground}
+      />
     </PressableFeedback>
   );
 }

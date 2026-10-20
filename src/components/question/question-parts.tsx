@@ -14,6 +14,8 @@ type QuestionStemProps = {
   /** Only CONTENT images are shown here; explanation images belong to the explanation. */
   media: readonly Media[];
   caseStudyOpen?: boolean;
+  /** Turns on the vocabulary layer, e.g. the question id (blocks `${vocabId}:stem:…`). */
+  vocabId?: string;
 };
 
 /** Case study, stem and figures of a question. */
@@ -22,13 +24,23 @@ export function QuestionStem({
   content,
   media,
   caseStudyOpen = true,
+  vocabId,
 }: QuestionStemProps) {
   return (
     <View className="gap-4">
       {caseStudy ? (
-        <CaseStudyPanel key={caseStudy.title} caseStudy={caseStudy} initiallyOpen={caseStudyOpen} />
+        <CaseStudyPanel
+          key={caseStudy.title}
+          caseStudy={caseStudy}
+          initiallyOpen={caseStudyOpen}
+          vocabId={vocabId === undefined ? undefined : `${vocabId}:case`}
+        />
       ) : null}
-      <Paragraphs text={content} weight="medium" />
+      <Paragraphs
+        text={content}
+        weight="medium"
+        vocabId={vocabId === undefined ? undefined : `${vocabId}:stem`}
+      />
       <QuestionMedia media={media.filter((item) => item.placement === 'CONTENT')} />
     </View>
   );
@@ -66,10 +78,12 @@ export function QuestionTags({ label, domain, difficulty }: QuestionTagsProps) {
 type ExplanationProps = {
   explanation: string | null;
   media: readonly Media[];
+  /** Turns on the vocabulary layer (block id prefix). */
+  vocabId?: string;
 };
 
 /** The explanation with the images that belong to it (e.g. the solved table). */
-export function Explanation({ explanation, media }: ExplanationProps) {
+export function Explanation({ explanation, media, vocabId }: ExplanationProps) {
   const { t } = useTranslation();
   const images = media.filter((item) => item.placement === 'EXPLANATION');
   if (!explanation && images.length === 0) return null;
@@ -82,7 +96,13 @@ export function Explanation({ explanation, media }: ExplanationProps) {
           {t('review.explanation')}
         </Text>
       </View>
-      {explanation ? <Paragraphs text={explanation} type="body-sm" /> : null}
+      {explanation ? (
+        <Paragraphs
+          text={explanation}
+          type="body-sm"
+          vocabId={vocabId === undefined ? undefined : `${vocabId}:explanation`}
+        />
+      ) : null}
       <QuestionMedia media={images} />
     </View>
   );
