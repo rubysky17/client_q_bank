@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { useCSSVariable } from 'uniwind';
 
+import { useAttemptsInProgress } from '@/api/attempts';
 import {
   Card,
   GradientGlow,
@@ -14,16 +15,19 @@ import {
 } from '@/components/ui';
 import { useLocalAttempts } from '@/stores/attempt-sessions';
 
+import { continueItems } from './rows';
+
 /**
- * Unfinished attempts kept on the device (shown offline too): the latest as a gradient card, the
- * others as compact rows.
+ * Unfinished attempts, kept on the device (shown offline too) or in progress on another device: the
+ * latest as a gradient card, the others as compact rows.
  */
 export function ContinueCards() {
   const { t } = useTranslation();
   const { push } = useRouter();
   const accent = useThemeColor('accent');
   const [onBrand, brandEnd] = useCSSVariable(['--color-on-brand', '--color-brand-end']);
-  const unfinished = useLocalAttempts().filter((a) => a.closing === null);
+  const { data: inProgress } = useAttemptsInProgress();
+  const unfinished = continueItems(useLocalAttempts(), inProgress);
   const [latest, ...others] = unfinished;
   if (!latest) return null;
 

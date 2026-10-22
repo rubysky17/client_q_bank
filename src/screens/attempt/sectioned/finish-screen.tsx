@@ -37,7 +37,9 @@ export function FinishScreen({ id, closing }: FinishScreenProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run per retry only
   }, [id, attempt]);
 
-  if (outcome === 'RUNNING' || outcome === 'DONE' || outcome === 'CLOSED') {
+  // MOVED: another device went on with the attempt; its copy replaces this one and the test
+  // screen comes back by itself.
+  if (outcome === 'RUNNING' || outcome === 'DONE' || outcome === 'CLOSED' || outcome === 'MOVED') {
     return (
       <View className="flex-1 items-center justify-center gap-5 p-8">
         <FeatureIcon icon="cloud-upload-outline" />
