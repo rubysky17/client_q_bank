@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Stack } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ScrollView, View } from 'react-native';
+import { Alert, ScrollView, View } from 'react-native';
 
 import { type BankFilters, type BankQuestion, useBankQuestions } from '@/api/question-bank';
 import {
@@ -34,7 +34,14 @@ import {
   VocabScope,
 } from '@/components/vocab';
 import { AttemptTopBar } from '@/screens/attempt/attempt-top-bar';
+import {
+  checkPracticeAnswer,
+  resetPractice,
+  savePracticeAnswer,
+  useUserStateStore,
+} from '@/stores/user-state-store';
 import { optionLetter } from '@/utils/format-duration';
+import { practiceOf } from '@/user-state/practice';
 
 /** Load the next page this many questions before the end of what is loaded. */
 const PREFETCH_AHEAD = 5;
@@ -45,8 +52,8 @@ type PracticeScreenProps = {
 };
 
 /**
- * Self-study over the question bank: answer, check right away, read the explanation. Nothing is
- * sent to the server; answers live only while the screen is open.
+ * Self-study over the question bank: answer, check right away, read the explanation. Answers are
+ * kept on the device and synced to the user's other devices (`stores/user-state-store.ts`).
  */
 export function PracticeScreen({ filters, start }: PracticeScreenProps) {
   const { t } = useTranslation();
@@ -54,8 +61,7 @@ export function PracticeScreen({ filters, start }: PracticeScreenProps) {
   const { data, error, isPending, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useBankQuestions(filters);
   const [index, setIndex] = useState(start);
-  const [answers, setAnswers] = useState<Record<string, Answer | null>>({});
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const items = useUserStateStore((s) => s.items);
   const scrollRef = useRef<ScrollView>(null);
 
   const loaded = data?.items.length ?? 0;
@@ -72,11 +78,16 @@ export function PracticeScreen({ filters, start }: PracticeScreenProps) {
   const question = data.items[Math.min(index, loaded - 1)];
   if (!question) return <ErrorView error={error} onRetry={refetch} />;
 
-  const results = data.items.flatMap((q) => {
-    if (!checked[q.id]) return [];
-    const model = fromDefinition(q.type, q.definition);
-    return model ? [isAnswerCorrect(model.key, answers[q.id] ?? null)] : [];
+  const practiced = data.items.flatMap((q) => {
+    const done = practiceOf<Answer>(items, q.id);
+    return done ? [{ question: q, ...done }] : [];
   });
+  const results = practiced.flatMap(({ question: q, response, checked }) => {
+    if (!checked) return [];
+    const model = fromDefinition(q.type, q.definition);
+    return model ? [isAnswerCorrect(model.key, response)] : [];
+  });
+  const current = practiceOf<Answer>(items, question.id);
   const correctCount = results.filter(Boolean).length;
   const isLast = index >= data.total - 1;
 
@@ -84,6 +95,20 @@ export function PracticeScreen({ filters, start }: PracticeScreenProps) {
     setIndex(next);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   };
+
+  const confirmReset = () =>
+    Alert.alert(
+      t('practice.resetTitle'),
+      t('practice.resetMessage', { count: practiced.length }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('practice.reset'),
+          style: 'destructive',
+          onPress: () => resetPractice(practiced.map(({ question: q }) => q.id)),
+        },
+      ],
+    );
 
   return (
     <View className="flex-1">
@@ -94,6 +119,14 @@ export function PracticeScreen({ filters, start }: PracticeScreenProps) {
         subtitle={t('practice.title')}
         accessory={
           <View className="flex-row items-center gap-2">
+            {practiced.length > 0 ? (
+              <IconButton
+                icon="refresh"
+                size={36}
+                onPress={confirmReset}
+                accessibilityLabel={t('practice.reset')}
+              />
+            ) : null}
             <NoteToggle />
             <View className="flex-row items-center gap-1 rounded-full bg-success-soft px-3 py-2">
               <Ionicons name="checkmark-circle" size={14} color={success} />
@@ -124,16 +157,13 @@ export function PracticeScreen({ filters, start }: PracticeScreenProps) {
         <PracticeQuestion
           key={question.id}
           question={question}
-          answer={answers[question.id] ?? null}
-          isChecked={checked[question.id] === true}
-          onAnswer={(answer, checkNow) => {
-            setAnswers({ ...answers, [question.id]: answer });
-            if (checkNow) setChecked({ ...checked, [question.id]: true });
-          }}
-          onCheck={() => setChecked({ ...checked, [question.id]: true })}
+          answer={current?.response ?? null}
+          isChecked={current?.checked === true}
+          onAnswer={(answer, checkNow) => savePracticeAnswer(question.id, answer, checkNow)}
+          onCheck={() => checkPracticeAnswer(question.id)}
         />
       </ScrollView>
-      {isLast && checked[question.id] ? (
+      {isLast && current?.checked ? (
         <Text type="body-sm" color="muted" className="px-4 pb-2 text-center">
           {t('practice.finished')}
         </Text>

@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { createLogger } from '@/lib/logger';
 import { queryClient } from '@/providers/query-client';
 import {
+  attemptsOwner,
   forgetSession,
   getSession,
   localAttempts,
@@ -39,7 +40,8 @@ const SyncResultSchema = z.object({
  * - DONE: submitted or abandoned on the server; the device forgot it (the result can be read).
  * - CLOSED: the server had already closed it (e.g. started over on another device).
  * - MOVED: another device went on with it; the device copy now is the server's (still open).
- * - OFFLINE: nothing could be sent; the data stays on the device and is retried later.
+ * - OFFLINE: nothing could be sent; the data stays on the device and is retried later (also when
+ *   the user signed out meanwhile: the attempt waits for them under their own keys).
  */
 export type SyncOutcome = 'SYNCED' | 'DONE' | 'CLOSED' | 'MOVED' | 'OFFLINE';
 
@@ -60,13 +62,18 @@ export function syncAttempt(attemptId: string): Promise<SyncOutcome> {
 }
 
 async function run(attemptId: string): Promise<SyncOutcome> {
+  // The user the attempt belongs to: if another one signs in meanwhile, nothing is applied.
+  const owner = attemptsOwner();
+  const store = localAttempts();
+  const isOwnerStill = () => owner !== null && attemptsOwner() === owner;
+  if (!owner) return 'OFFLINE';
   try {
     for (;;) {
       const session = getSession(attemptId);
       if (!session) return 'DONE';
       const { state } = session;
-      const ackedBefore = localAttempts.ackedSeq(attemptId);
-      const events = localAttempts.pendingEvents(attemptId, state.lastSeq, MAX_EVENTS);
+      const ackedBefore = store.ackedSeq(attemptId);
+      const events = store.pendingEvents(attemptId, state.lastSeq, MAX_EVENTS);
       const questions = Object.keys(state.dirty)
         .slice(0, MAX_QUESTIONS)
         .flatMap((id) => {
@@ -113,11 +120,13 @@ async function run(attemptId: string): Promise<SyncOutcome> {
         })
         .json(SyncResultSchema);
 
-      localAttempts.acknowledge(attemptId, result.ackedSeq);
+      // Events are acknowledged in the owner's own keys (`store`) even after a switch.
+      store.acknowledge(attemptId, result.ackedSeq);
+      if (!isOwnerStill()) return 'OFFLINE';
       // A timestamp to show, not a duration: Date.now() is fine here.
       useSyncStatusStore.getState().markSynced(Date.now());
       if (result.applied) session.markSynced(state.lastSeq);
-      useAttemptSessionsStore.setState({ index: localAttempts.listAttempts() });
+      useAttemptSessionsStore.setState({ index: store.listAttempts() });
 
       if (result.ackedSeq < session.state.lastSeq) {
         // More events than one request takes, or new ones recorded meanwhile: keep going, unless
@@ -132,8 +141,10 @@ async function run(attemptId: string): Promise<SyncOutcome> {
     }
   } catch (error) {
     const apiError = toApiError(error);
-    if (apiError.serverCode === 'ATTEMPT_CLOSED') {
-      log.warn('attempt closed on the server; dropping the device copy', attemptId);
+    if (!isOwnerStill()) return 'OFFLINE';
+    if (apiError.serverCode === 'ATTEMPT_CLOSED' || apiError.status === 404) {
+      // 404: the attempt is not this user's (kept from before attempts were stored per user).
+      log.warn('attempt closed or unknown on the server; dropping the device copy', attemptId);
       forgetSession(attemptId);
       void queryClient.invalidateQueries({ queryKey: queryKeys.attempts.all });
       return 'CLOSED';
@@ -187,7 +198,11 @@ function finish(attemptId: string, examId: string | undefined) {
 
 /** "Sync now": uploads every attempt kept on the device and waits for the outcomes. */
 export function syncAllAttemptsNow(): Promise<SyncOutcome[]> {
-  return Promise.all(localAttempts.listAttempts().map(({ attemptId }) => syncAttempt(attemptId)));
+  return Promise.all(
+    localAttempts()
+      .listAttempts()
+      .map(({ attemptId }) => syncAttempt(attemptId)),
+  );
 }
 
 /**
@@ -195,17 +210,18 @@ export function syncAllAttemptsNow(): Promise<SyncOutcome[]> {
  * to send. (Every attempt still on the device counts until the server has all of it.)
  */
 export function pendingUploadCount(): number {
-  return localAttempts.listAttempts().filter((summary) => {
+  const store = localAttempts();
+  return store.listAttempts().filter((summary) => {
     if (summary.closing !== null) return true;
-    const state = localAttempts.loadState(summary.attemptId);
-    return state !== null && state.lastSeq > localAttempts.ackedSeq(summary.attemptId);
+    const state = store.loadState(summary.attemptId);
+    return state !== null && state.lastSeq > store.ackedSeq(summary.attemptId);
   }).length;
 }
 
 /** Uploads every attempt kept on the device. */
 export function syncAllAttempts() {
-  if (!onlineManager.isOnline()) return;
-  for (const { attemptId } of localAttempts.listAttempts()) void syncAttempt(attemptId);
+  if (!onlineManager.isOnline() || !attemptsOwner()) return;
+  for (const { attemptId } of localAttempts().listAttempts()) void syncAttempt(attemptId);
 }
 
 const uploadTimers = new Map<string, ReturnType<typeof setTimeout>>();

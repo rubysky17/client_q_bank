@@ -78,3 +78,21 @@ export async function cancelStudyReminder() {
     ?.cancelScheduledNotificationAsync(REMINDER_ID)
     .catch(() => undefined);
 }
+
+/**
+ * Follows a reminder changed on another device: schedules it only if this device already allows
+ * notifications (never asks out of the blue), or cancels it.
+ */
+export async function followStudyReminder(
+  reminder: ReminderTime & { enabled: boolean },
+  content: ReminderContent,
+) {
+  const Notifications = notifications();
+  if (!Notifications) return;
+  if (!reminder.enabled) {
+    await cancelStudyReminder();
+    return;
+  }
+  const { granted } = await Notifications.getPermissionsAsync();
+  if (granted) await scheduleStudyReminder(reminder, content);
+}

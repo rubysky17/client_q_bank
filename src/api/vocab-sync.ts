@@ -2,16 +2,13 @@ import { onlineManager } from '@tanstack/react-query';
 import { AppState } from 'react-native';
 
 import { createLogger } from '@/lib/logger';
-import { useAuthStore } from '@/stores/auth-store';
 import {
-  activateVocabUser,
   applyVocabSync,
   flushVocab,
   setVocabSyncIssue,
   setVocabSyncing,
   useVocabStore,
 } from '@/stores/vocab-store';
-import { userIdFromToken } from '@/utils/jwt';
 import { buildPush } from '@/vocab/merge';
 
 import { toApiError } from './errors';
@@ -127,36 +124,20 @@ async function run() {
 }
 
 /**
- * Keeps the vocabulary of the signed-in user loaded and synced: right away, after local changes,
- * when the connection comes back and when the app returns to the foreground. Started once by the
- * app providers.
+ * Uploads soon after every change on the device and saves to the device when the app goes to the
+ * background. Loading the signed-in user's notes and pulling (sign-in, foreground, connection back,
+ * changes made on other devices) is driven by `sync/coordinator.ts`. Started once by the app
+ * providers.
  */
 export function startVocabSync() {
-  activateVocabUser(userIdFromToken(useAuthStore.getState().accessToken));
-  void syncVocab();
-
-  const unsubscribeAuth = useAuthStore.subscribe((state, previous) => {
-    if (state.accessToken === previous.accessToken) return;
-    const userId = userIdFromToken(state.accessToken);
-    // Every token refresh changes the token, not the user.
-    if (userId === useVocabStore.getState().userId) return;
-    activateVocabUser(userId);
-    void syncVocab();
-  });
   const unsubscribeLocal = useVocabStore.subscribe((state, previous) => {
     if (state.localVersion !== previous.localVersion) scheduleVocabSync();
   });
-  const unsubscribeOnline = onlineManager.subscribe((isOnline) => {
-    if (isOnline) void syncVocab();
-  });
   const appState = AppState.addEventListener('change', (status) => {
-    if (status === 'active') void syncVocab();
-    else flushVocab();
+    if (status !== 'active') flushVocab();
   });
   return () => {
-    unsubscribeAuth();
     unsubscribeLocal();
-    unsubscribeOnline();
     appState.remove();
     flushVocab();
   };

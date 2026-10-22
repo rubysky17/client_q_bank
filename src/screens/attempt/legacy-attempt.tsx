@@ -49,7 +49,7 @@ type LegacyAttemptScreenProps = {
   id: string;
 };
 
-/** One server deadline for the whole attempt; every answer is saved online right away. */
+/** One server deadline for the whole attempt; every answer is kept on the device and sent at once. */
 export function LegacyAttemptScreen({ id }: LegacyAttemptScreenProps) {
   const { t } = useTranslation();
   const { replace } = useRouter();

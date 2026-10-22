@@ -8,6 +8,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { pendingUploadCount, syncAllAttemptsNow } from '@/api/attempt-sync';
 import { useLogout, useLogoutAll, useMe } from '@/api/auth';
 import { describeError } from '@/api/errors';
+import { flushLegacyOutbox, pendingLegacyCount } from '@/api/legacy-outbox';
+import { syncUserStateNow } from '@/api/user-state-sync';
 import { syncVocab } from '@/api/vocab-sync';
 import { Button, SegmentedControl, Spinner, Switch, Text } from '@/components/ui';
 import { env } from '@/lib/env';
@@ -23,6 +25,7 @@ import {
   useSettingsStore,
 } from '@/stores/settings-store';
 import { useSyncStatusStore } from '@/stores/sync-status-store';
+import { usePendingUserStateCount, useUserStateStore } from '@/stores/user-state-store';
 import { usePendingVocabCount, useVocabStore } from '@/stores/vocab-store';
 
 import { AccountCard } from './account-card';
@@ -258,8 +261,8 @@ function StudyGroup() {
 }
 
 /**
- * What the device still has to send: sectioned attempts and vocabulary notes, and "sync now" for
- * both.
+ * What the device still has to send: attempts, vocabulary notes, practice answers and settings,
+ * and "sync now" for all of them.
  */
 function SyncGroup() {
   const { t, i18n } = useTranslation();
@@ -267,14 +270,21 @@ function SyncGroup() {
   useLocalAttempts();
   const lastSyncedAt = useSyncStatusStore((s) => s.lastSyncedAt);
   const [state, setState] = useState<'idle' | 'running' | 'done' | 'offline'>('idle');
-  const pending = pendingUploadCount();
+  const pending = pendingUploadCount() + pendingLegacyCount();
   const pendingVocab = usePendingVocabCount();
   const isSyncingVocab = useVocabStore((s) => s.syncing);
+  const pendingUserState = usePendingUserStateCount();
+  const isSyncingUserState = useUserStateStore((s) => s.syncing);
 
   const syncNow = async () => {
     setState('running');
-    const [outcomes] = await Promise.all([syncAllAttemptsNow(), syncVocab()]);
-    setState(outcomes.includes('OFFLINE') ? 'offline' : 'done');
+    const [outcomes, legacy] = await Promise.all([
+      syncAllAttemptsNow(),
+      flushLegacyOutbox(),
+      syncVocab(),
+      syncUserStateNow(),
+    ]);
+    setState([...outcomes, ...legacy].includes('OFFLINE') ? 'offline' : 'done');
   };
 
   const last =
@@ -324,6 +334,19 @@ function SyncGroup() {
             ? t('vocab.syncing')
             : pendingVocab > 0
               ? t('settings.vocabPending', { count: pendingVocab })
+              : t('vocab.synced')
+        }
+        hasDivider
+      />
+      <SettingsRow
+        icon={pendingUserState > 0 ? 'cloud-upload-outline' : 'school-outline'}
+        tone={pendingUserState > 0 ? 'amber' : 'pink'}
+        title={t('settings.practiceSync')}
+        detail={
+          isSyncingUserState
+            ? t('vocab.syncing')
+            : pendingUserState > 0
+              ? t('settings.practicePending', { count: pendingUserState })
               : t('vocab.synced')
         }
       />
